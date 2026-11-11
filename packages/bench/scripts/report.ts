@@ -11,7 +11,6 @@ import {
 	String as Str
 } from "effect"
 import { ENGINES } from "#engines.ts"
-import { MODULES } from "#modules.ts"
 
 const Run = Schema.Struct({
 	engine: Schema.String,
@@ -93,6 +92,17 @@ const main = Effect.gen(function* () {
 		.readFileString(path.join(directory, "deopts.jsonl"))
 		.pipe(Effect.orElseSucceed(() => ""))
 	const deopts = yield* Effect.forEach(linesOf(deoptsText), (line) => decodeDeopt(line))
+	const modules = Arr.map(Arr.dedupe(Arr.map(runs, (each) => each.module)), (module) => ({
+		module,
+		workloads: Arr.map(
+			Arr.dedupe(
+				Arr.filterMap(runs, (each) =>
+					each.module === module ? Result.succeed(each.workload) : Result.failVoid
+				)
+			),
+			(name) => ({ name })
+		)
+	}))
 	const find = (engine: string, workload: string) =>
 		Arr.findFirst(runs, (each) => each.engine === engine && each.workload === workload)
 	const medianOf = (each: Run) => (each.nanos === undefined ? Number.NaN : median(each.nanos))
@@ -119,7 +129,7 @@ const main = Effect.gen(function* () {
 							disagrees(engine, workload) ? " ≠" : ""
 						}`
 		})
-	const workloadRows = Arr.flatMap(MODULES, ({ module, workloads }) =>
+	const workloadRows = Arr.flatMap(modules, ({ module, workloads }) =>
 		Arr.map(workloads, (workload) => {
 			const bailouts = Option.match(
 				Arr.findFirst(deopts, (each) => each.workload === workload.name),
@@ -141,10 +151,10 @@ const main = Effect.gen(function* () {
 				})
 			)
 		)
-	const everyName = Arr.flatMap(MODULES, ({ workloads }) => Arr.map(workloads, (w) => w.name))
+	const everyName = Arr.flatMap(modules, ({ workloads }) => Arr.map(workloads, (w) => w.name))
 	const geoRows = [
 		...Arr.map(
-			MODULES,
+			modules,
 			({ module, workloads }) =>
 				`| ${module} | ${Arr.join(
 					Arr.map(others, (engine) =>
@@ -176,7 +186,7 @@ const main = Effect.gen(function* () {
 				})
 			})
 		)
-	const tierRows = Arr.map(MODULES, ({ module, workloads }) => {
+	const tierRows = Arr.map(modules, ({ module, workloads }) => {
 		const names = Arr.map(workloads, (w) => w.name)
 		const bailouts = Arr.filterMap(deopts, (each) =>
 			Arr.contains(names, each.workload) ? Result.succeed(each.bailouts) : Result.failVoid
