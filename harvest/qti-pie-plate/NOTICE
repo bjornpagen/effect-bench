@@ -1,0 +1,38 @@
+src/engine/math.ts ports these routines of FDLIBM 5.3 (https://netlib.org/fdlibm/).
+
+Plate's own Math is a port of FDLIBM 5.3, https://netlib.org/fdlibm/, from these 21 files:
+e_rem_pio2.c, k_rem_pio2.c, k_sin.c, k_cos.c, k_tan.c, s_sin.c, s_cos.c, s_tan.c, e_asin.c,
+e_acos.c, s_atan.c, e_atan2.c, e_exp.c, s_expm1.c, e_log.c, e_log10.c, e_sinh.c, e_cosh.c,
+s_tanh.c, e_pow.c and s_scalbn.c. They carry these notices.
+
+e_rem_pio2.c, k_rem_pio2.c, k_sin.c, k_cos.c, s_sin.c, s_cos.c, s_tan.c, e_asin.c, e_acos.c,
+s_atan.c, e_atan2.c, e_log.c, e_log10.c, e_sinh.c, e_cosh.c, s_tanh.c and s_scalbn.c:
+
+====================================================
+Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+
+Developed at SunSoft, a Sun Microsystems, Inc. business.
+Permission to use, copy, modify, and distribute this
+software is freely granted, provided that this notice
+is preserved.
+====================================================
+
+e_exp.c, s_expm1.c and e_pow.c:
+
+====================================================
+Copyright (C) 2004 by Sun Microsystems, Inc. All rights reserved.
+
+Permission to use, copy, modify, and distribute this
+software is freely granted, provided that this notice
+is preserved.
+====================================================
+
+k_tan.c:
+
+====================================================
+Copyright 2004 Sun Microsystems, Inc.  All Rights Reserved.
+
+Permission to use, copy, modify, and distribute this
+software is freely granted, provided that this notice
+is preserved.
+====================================================

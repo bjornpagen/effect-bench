@@ -1,0 +1,427 @@
+[
+  {
+    "first": 0,
+    "last": 127,
+    "name": "BasicLatin"
+  },
+  {
+    "first": 128,
+    "last": 255,
+    "name": "Latin-1Supplement"
+  },
+  {
+    "first": 256,
+    "last": 383,
+    "name": "LatinExtended-A"
+  },
+  {
+    "first": 384,
+    "last": 591,
+    "name": "LatinExtended-B"
+  },
+  {
+    "first": 592,
+    "last": 687,
+    "name": "IPAExtensions"
+  },
+  {
+    "first": 688,
+    "last": 767,
+    "name": "SpacingModifierLetters"
+  },
+  {
+    "first": 768,
+    "last": 879,
+    "name": "CombiningDiacriticalMarks"
+  },
+  {
+    "first": 880,
+    "last": 1023,
+    "name": "Greek"
+  },
+  {
+    "first": 1024,
+    "last": 1279,
+    "name": "Cyrillic"
+  },
+  {
+    "first": 1328,
+    "last": 1423,
+    "name": "Armenian"
+  },
+  {
+    "first": 1424,
+    "last": 1535,
+    "name": "Hebrew"
+  },
+  {
+    "first": 1536,
+    "last": 1791,
+    "name": "Arabic"
+  },
+  {
+    "first": 1792,
+    "last": 1871,
+    "name": "Syriac"
+  },
+  {
+    "first": 1920,
+    "last": 1983,
+    "name": "Thaana"
+  },
+  {
+    "first": 2304,
+    "last": 2431,
+    "name": "Devanagari"
+  },
+  {
+    "first": 2432,
+    "last": 2559,
+    "name": "Bengali"
+  },
+  {
+    "first": 2560,
+    "last": 2687,
+    "name": "Gurmukhi"
+  },
+  {
+    "first": 2688,
+    "last": 2815,
+    "name": "Gujarati"
+  },
+  {
+    "first": 2816,
+    "last": 2943,
+    "name": "Oriya"
+  },
+  {
+    "first": 2944,
+    "last": 3071,
+    "name": "Tamil"
+  },
+  {
+    "first": 3072,
+    "last": 3199,
+    "name": "Telugu"
+  },
+  {
+    "first": 3200,
+    "last": 3327,
+    "name": "Kannada"
+  },
+  {
+    "first": 3328,
+    "last": 3455,
+    "name": "Malayalam"
+  },
+  {
+    "first": 3456,
+    "last": 3583,
+    "name": "Sinhala"
+  },
+  {
+    "first": 3584,
+    "last": 3711,
+    "name": "Thai"
+  },
+  {
+    "first": 3712,
+    "last": 3839,
+    "name": "Lao"
+  },
+  {
+    "first": 3840,
+    "last": 4095,
+    "name": "Tibetan"
+  },
+  {
+    "first": 4096,
+    "last": 4255,
+    "name": "Myanmar"
+  },
+  {
+    "first": 4256,
+    "last": 4351,
+    "name": "Georgian"
+  },
+  {
+    "first": 4352,
+    "last": 4607,
+    "name": "HangulJamo"
+  },
+  {
+    "first": 4608,
+    "last": 4991,
+    "name": "Ethiopic"
+  },
+  {
+    "first": 5024,
+    "last": 5119,
+    "name": "Cherokee"
+  },
+  {
+    "first": 5120,
+    "last": 5759,
+    "name": "UnifiedCanadianAboriginalSyllabics"
+  },
+  {
+    "first": 5760,
+    "last": 5791,
+    "name": "Ogham"
+  },
+  {
+    "first": 5792,
+    "last": 5887,
+    "name": "Runic"
+  },
+  {
+    "first": 6016,
+    "last": 6143,
+    "name": "Khmer"
+  },
+  {
+    "first": 6144,
+    "last": 6319,
+    "name": "Mongolian"
+  },
+  {
+    "first": 7680,
+    "last": 7935,
+    "name": "LatinExtendedAdditional"
+  },
+  {
+    "first": 7936,
+    "last": 8191,
+    "name": "GreekExtended"
+  },
+  {
+    "first": 8192,
+    "last": 8303,
+    "name": "GeneralPunctuation"
+  },
+  {
+    "first": 8304,
+    "last": 8351,
+    "name": "SuperscriptsandSubscripts"
+  },
+  {
+    "first": 8352,
+    "last": 8399,
+    "name": "CurrencySymbols"
+  },
+  {
+    "first": 8400,
+    "last": 8447,
+    "name": "CombiningMarksforSymbols"
+  },
+  {
+    "first": 8448,
+    "last": 8527,
+    "name": "LetterlikeSymbols"
+  },
+  {
+    "first": 8528,
+    "last": 8591,
+    "name": "NumberForms"
+  },
+  {
+    "first": 8592,
+    "last": 8703,
+    "name": "Arrows"
+  },
+  {
+    "first": 8704,
+    "last": 8959,
+    "name": "MathematicalOperators"
+  },
+  {
+    "first": 8960,
+    "last": 9215,
+    "name": "MiscellaneousTechnical"
+  },
+  {
+    "first": 9216,
+    "last": 9279,
+    "name": "ControlPictures"
+  },
+  {
+    "first": 9280,
+    "last": 9311,
+    "name": "OpticalCharacterRecognition"
+  },
+  {
+    "first": 9312,
+    "last": 9471,
+    "name": "EnclosedAlphanumerics"
+  },
+  {
+    "first": 9472,
+    "last": 9599,
+    "name": "BoxDrawing"
+  },
+  {
+    "first": 9600,
+    "last": 9631,
+    "name": "BlockElements"
+  },
+  {
+    "first": 9632,
+    "last": 9727,
+    "name": "GeometricShapes"
+  },
+  {
+    "first": 9728,
+    "last": 9983,
+    "name": "MiscellaneousSymbols"
+  },
+  {
+    "first": 9984,
+    "last": 10175,
+    "name": "Dingbats"
+  },
+  {
+    "first": 10240,
+    "last": 10495,
+    "name": "BraillePatterns"
+  },
+  {
+    "first": 11904,
+    "last": 12031,
+    "name": "CJKRadicalsSupplement"
+  },
+  {
+    "first": 12032,
+    "last": 12255,
+    "name": "KangxiRadicals"
+  },
+  {
+    "first": 12272,
+    "last": 12287,
+    "name": "IdeographicDescriptionCharacters"
+  },
+  {
+    "first": 12288,
+    "last": 12351,
+    "name": "CJKSymbolsandPunctuation"
+  },
+  {
+    "first": 12352,
+    "last": 12447,
+    "name": "Hiragana"
+  },
+  {
+    "first": 12448,
+    "last": 12543,
+    "name": "Katakana"
+  },
+  {
+    "first": 12544,
+    "last": 12591,
+    "name": "Bopomofo"
+  },
+  {
+    "first": 12592,
+    "last": 12687,
+    "name": "HangulCompatibilityJamo"
+  },
+  {
+    "first": 12688,
+    "last": 12703,
+    "name": "Kanbun"
+  },
+  {
+    "first": 12704,
+    "last": 12735,
+    "name": "BopomofoExtended"
+  },
+  {
+    "first": 12800,
+    "last": 13055,
+    "name": "EnclosedCJKLettersandMonths"
+  },
+  {
+    "first": 13056,
+    "last": 13311,
+    "name": "CJKCompatibility"
+  },
+  {
+    "first": 13312,
+    "last": 19893,
+    "name": "CJKUnifiedIdeographsExtensionA"
+  },
+  {
+    "first": 19968,
+    "last": 40959,
+    "name": "CJKUnifiedIdeographs"
+  },
+  {
+    "first": 40960,
+    "last": 42127,
+    "name": "YiSyllables"
+  },
+  {
+    "first": 42128,
+    "last": 42191,
+    "name": "YiRadicals"
+  },
+  {
+    "first": 44032,
+    "last": 55203,
+    "name": "HangulSyllables"
+  },
+  {
+    "first": 57344,
+    "last": 63743,
+    "name": "PrivateUse"
+  },
+  {
+    "first": 63744,
+    "last": 64255,
+    "name": "CJKCompatibilityIdeographs"
+  },
+  {
+    "first": 64256,
+    "last": 64335,
+    "name": "AlphabeticPresentationForms"
+  },
+  {
+    "first": 64336,
+    "last": 65023,
+    "name": "ArabicPresentationForms-A"
+  },
+  {
+    "first": 65056,
+    "last": 65071,
+    "name": "CombiningHalfMarks"
+  },
+  {
+    "first": 65072,
+    "last": 65103,
+    "name": "CJKCompatibilityForms"
+  },
+  {
+    "first": 65104,
+    "last": 65135,
+    "name": "SmallFormVariants"
+  },
+  {
+    "first": 65136,
+    "last": 65278,
+    "name": "ArabicPresentationForms-B"
+  },
+  {
+    "first": 65279,
+    "last": 65279,
+    "name": "Specials"
+  },
+  {
+    "first": 65280,
+    "last": 65519,
+    "name": "HalfwidthandFullwidthForms"
+  },
+  {
+    "first": 65520,
+    "last": 65533,
+    "name": "Specials"
+  }
+]

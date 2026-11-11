@@ -9,7 +9,6 @@ engineStrict: true
 # Node 26 is the one runtime, so its types are the only Node types, even for packages that ask for another.
 overrides:
   "@types/node": "catalog:"
-  "@qti-pie/crust": "catalog:"
 allowBuilds:
   lefthook: true
   esbuild: true
@@ -19,15 +18,10 @@ skills:
     - .agents/skills
 # Admit a release once it is a day old.
 minimumReleaseAge: 1440
-# qti-pie is a git dependency whose plate names crust as a workspace sibling; the override points it at the same pinned
-# commit, which is a git dependency of a dependency.
-blockExoticSubdeps: false
 # Every external dependency's one version: packages name it with catalog:, and strict mode refuses a version stated anywhere else.
 catalogMode: strict
 catalog:
   "@aidenzepp/effect-xml": 0.2.0
-  "@qti-pie/crust": "github:aidenzepp/qti-pie#f5365d6c2350442e429298e570b0fe1c64912136&path:packages/crust"
-  "@qti-pie/plate": "github:aidenzepp/qti-pie#f5365d6c2350442e429298e570b0fe1c64912136&path:packages/plate"
   "@effect/platform-node": 4.1.2
   "@effect/tsgo": 0.64.1
   "@effect/vitest": 4.1.2
@@ -40,6 +34,7 @@ catalog:
   oxfmt: 0.76.0
   oxlint: 1.90.0
   oxlint-tsgolint: 7.0.2005
+  saxes: 6.0.0
   turbo: 2.11.10
   typescript: 7.1.0-beta
   vite: 8.3.5

@@ -1,0 +1,9 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["esnext", "dom"],
+    "types": []
+  },
+  "include": ["**/*.dom.ts", "**/*.dom.test.ts"],
+  "exclude": ["**/node_modules"]
+}

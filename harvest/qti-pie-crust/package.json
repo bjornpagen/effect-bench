@@ -1,0 +1,30 @@
+{
+	"name": "@qti-pie/crust",
+	"private": true,
+	"description": "qti-pie's crust, harvested from github.com/aidenzepp/qti-pie at f5365d6c2350442e429298e570b0fe1c64912136 (packages/crust/src, without its tests): reading and writing XML for QTI.",
+	"type": "module",
+	"sideEffects": false,
+	"imports": {
+		"#crust/*": "./src/*"
+	},
+	"exports": {
+		"./canonical.ts": "./src/canonical.ts",
+		"./charset.ts": "./src/charset.ts",
+		"./encode.ts": "./src/encode.ts",
+		"./errors.ts": "./src/errors.ts",
+		"./read.ts": "./src/read.ts",
+		"./tree.ts": "./src/tree.ts",
+		"./uri.ts": "./src/uri.ts",
+		"./write.ts": "./src/write.ts"
+	},
+	"scripts": {
+		"typecheck": "effect-tsgo tsrs"
+	},
+	"dependencies": {
+		"effect": "catalog:",
+		"saxes": "catalog:"
+	},
+	"devDependencies": {
+		"typescript": "catalog:"
+	}
+}

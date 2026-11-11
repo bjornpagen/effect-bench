@@ -10,6 +10,7 @@
 		"resolvePackageJsonImports": true,
 		"resolvePackageJsonExports": true,
 		"resolveJsonModule": true,
+		"allowArbitraryExtensions": true,
 		"strict": true,
 		"exactOptionalPropertyTypes": true,
 		"noUncheckedIndexedAccess": true,

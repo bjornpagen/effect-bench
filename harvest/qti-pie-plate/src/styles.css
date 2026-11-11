@@ -1,0 +1,1008 @@
+/*
+ * plate's stylesheet, linked by a host page: plate's default theme for hosts that are not React.
+ * It is not the shadcn look, but it reads shadcn's token names, so a host's shadcn theme carries
+ * over.
+ *
+ * Tokens: it reads thirteen shadcn/ui tokens and no others, each as var(--token, <fallback>), the
+ * fallback shadcn's default neutral light value: --primary, --primary-foreground, --accent,
+ * --accent-foreground, --muted, --muted-foreground, --card, --card-foreground, --destructive,
+ * --border, --input, --ring and --radius. Source: shadcn/ui's theming file,
+ * https://github.com/shadcn-ui/ui/blob/4aaea19d9cff3e0908e12a8c1d504b8c5ec34610/apps/v4/content/docs/(root)/theming.mdx
+ * (lines 204-223). It declares no token: the host's theme sets them, at :root and .dark.
+ *
+ * Every rule sits inside :where(), so it weighs nothing and any host rule wins by order; only the
+ * authored qti-* classes count. Every combinator is the descendant one, so a part swapped for the
+ * host's own markup, with wrappers between, still matches.
+ */
+
+/* == base: QTI vocabulary classes == */
+
+/*
+ * Choice labels (vocab.txt:4329-4503). A label class numbers the rows in its predefined counter
+ * style. The label is generated on the row, outside the Label part, so each Control's accessible
+ * name stays the authored text. With no label class, no label shows.
+ */
+.qti-labels-decimal:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choices"]),
+.qti-labels-lower-alpha:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choices"]),
+.qti-labels-upper-alpha:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choices"]),
+.qti-labels-cjk-ideographic:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choices"]) {
+  counter-reset: qti-choice-label;
+}
+
+/* A labelled row counts itself, and sets its label on one line beside the Label part. */
+.qti-labels-decimal:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"]),
+.qti-labels-lower-alpha:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"]),
+.qti-labels-upper-alpha:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"]),
+.qti-labels-cjk-ideographic:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"]) {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+  counter-increment: qti-choice-label;
+}
+
+/* The Label part takes the rest of a labelled row, so the whole line stays its target. */
+.qti-labels-decimal:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-label"]),
+.qti-labels-lower-alpha:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-label"]),
+.qti-labels-upper-alpha:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-label"]),
+.qti-labels-cjk-ideographic:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-label"]) {
+  flex-grow: 1;
+}
+
+/*
+ * Each label class's label: its counter style, then the suffix, which is a period with no suffix
+ * class or with qti-labels-suffix-period, ")" with qti-labels-suffix-parenthesis and nothing with
+ * qti-labels-suffix-none. The suffix class sits inside :where(), so each rule counts one class.
+ */
+
+/* qti-labels-decimal: 1, 2, 3. */
+.qti-labels-decimal:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before,
+.qti-labels-decimal:where(.qti-labels-suffix-period[data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before {
+  content: counter(qti-choice-label, decimal) ".";
+}
+
+.qti-labels-decimal:where(.qti-labels-suffix-parenthesis[data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before {
+  content: counter(qti-choice-label, decimal) ")";
+}
+
+.qti-labels-decimal:where(.qti-labels-suffix-none[data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before {
+  content: counter(qti-choice-label, decimal);
+}
+
+/* qti-labels-lower-alpha: a, b, c. */
+.qti-labels-lower-alpha:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before,
+.qti-labels-lower-alpha:where(.qti-labels-suffix-period[data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before {
+  content: counter(qti-choice-label, lower-alpha) ".";
+}
+
+.qti-labels-lower-alpha:where(.qti-labels-suffix-parenthesis[data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before {
+  content: counter(qti-choice-label, lower-alpha) ")";
+}
+
+.qti-labels-lower-alpha:where(.qti-labels-suffix-none[data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before {
+  content: counter(qti-choice-label, lower-alpha);
+}
+
+/* qti-labels-upper-alpha: A, B, C. */
+.qti-labels-upper-alpha:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before,
+.qti-labels-upper-alpha:where(.qti-labels-suffix-period[data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before {
+  content: counter(qti-choice-label, upper-alpha) ".";
+}
+
+.qti-labels-upper-alpha:where(.qti-labels-suffix-parenthesis[data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before {
+  content: counter(qti-choice-label, upper-alpha) ")";
+}
+
+.qti-labels-upper-alpha:where(.qti-labels-suffix-none[data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before {
+  content: counter(qti-choice-label, upper-alpha);
+}
+
+/* qti-labels-cjk-ideographic: 一, 二, 三. */
+.qti-labels-cjk-ideographic:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before,
+.qti-labels-cjk-ideographic:where(.qti-labels-suffix-period[data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before {
+  content: counter(qti-choice-label, cjk-ideographic) ".";
+}
+
+.qti-labels-cjk-ideographic:where(.qti-labels-suffix-parenthesis[data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before {
+  content: counter(qti-choice-label, cjk-ideographic) ")";
+}
+
+.qti-labels-cjk-ideographic:where(.qti-labels-suffix-none[data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before {
+  content: counter(qti-choice-label, cjk-ideographic);
+}
+
+/* qti-labels-none: no label, whatever other label class the Root holds. */
+.qti-labels-none:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before {
+  content: none;
+}
+
+/*
+ * Choice orientation (vocab.txt:4504-4549): vertical shows one column; horizontal shows one row of
+ * at most five, wrapping after five, row by row. The authored data-orientation behaves as the
+ * matching class; it sits inside :where(), so a class on the same Root wins. The columns are grid
+ * tracks sized by their content, so they need no fr unit and follow any gap the host sets.
+ */
+.qti-orientation-vertical:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choices"]),
+:where(
+  [data-slot="choice-interaction"][data-orientation="vertical"]
+    [data-slot="choice-interaction-choices"]
+) {
+  display: grid;
+  grid-template-columns: none;
+}
+
+.qti-orientation-horizontal:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choices"]),
+:where(
+  [data-slot="choice-interaction"][data-orientation="horizontal"]
+    [data-slot="choice-interaction-choices"]
+) {
+  display: grid;
+  grid-template-columns: auto auto auto auto auto;
+}
+
+/*
+ * Choice stacking (vocab.txt:4550-4738): qti-choices-stacking-N shows N columns. With horizontal
+ * orientation or none, the choices run row by row ("Z"), as grid tracks.
+ */
+.qti-choices-stacking-1:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choices"]) {
+  display: grid;
+  grid-template-columns: auto;
+}
+
+.qti-choices-stacking-2:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choices"]) {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.qti-choices-stacking-3:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choices"]) {
+  display: grid;
+  grid-template-columns: auto auto auto;
+}
+
+.qti-choices-stacking-4:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choices"]) {
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+}
+
+.qti-choices-stacking-5:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choices"]) {
+  display: grid;
+  grid-template-columns: auto auto auto auto auto;
+}
+
+/*
+ * With vertical orientation, by class or by data-orientation, the choices run column by column
+ * ("Reverse N"): N balanced columns of a multi-column layout. A horizontal class on the Root
+ * outranks a vertical data-orientation.
+ */
+.qti-choices-stacking-1:where([data-slot="choice-interaction"]):where(
+    .qti-orientation-vertical,
+    [data-orientation="vertical"]:not(.qti-orientation-horizontal)
+  )
+  :where([data-slot="choice-interaction-choices"]) {
+  display: block;
+  column-count: 1;
+}
+
+.qti-choices-stacking-2:where([data-slot="choice-interaction"]):where(
+    .qti-orientation-vertical,
+    [data-orientation="vertical"]:not(.qti-orientation-horizontal)
+  )
+  :where([data-slot="choice-interaction-choices"]) {
+  display: block;
+  column-count: 2;
+}
+
+.qti-choices-stacking-3:where([data-slot="choice-interaction"]):where(
+    .qti-orientation-vertical,
+    [data-orientation="vertical"]:not(.qti-orientation-horizontal)
+  )
+  :where([data-slot="choice-interaction-choices"]) {
+  display: block;
+  column-count: 3;
+}
+
+.qti-choices-stacking-4:where([data-slot="choice-interaction"]):where(
+    .qti-orientation-vertical,
+    [data-orientation="vertical"]:not(.qti-orientation-horizontal)
+  )
+  :where([data-slot="choice-interaction-choices"]) {
+  display: block;
+  column-count: 4;
+}
+
+.qti-choices-stacking-5:where([data-slot="choice-interaction"]):where(
+    .qti-orientation-vertical,
+    [data-orientation="vertical"]:not(.qti-orientation-horizontal)
+  )
+  :where([data-slot="choice-interaction-choices"]) {
+  display: block;
+  column-count: 5;
+}
+
+/* A row in a "Reverse N" column: kept whole, and spaced as the grid's gap spaces it elsewhere. */
+.qti-choices-stacking-1:where([data-slot="choice-interaction"]):where(
+    .qti-orientation-vertical,
+    [data-orientation="vertical"]:not(.qti-orientation-horizontal)
+  )
+  :where([data-slot="choice-interaction-choice"]),
+.qti-choices-stacking-2:where([data-slot="choice-interaction"]):where(
+    .qti-orientation-vertical,
+    [data-orientation="vertical"]:not(.qti-orientation-horizontal)
+  )
+  :where([data-slot="choice-interaction-choice"]),
+.qti-choices-stacking-3:where([data-slot="choice-interaction"]):where(
+    .qti-orientation-vertical,
+    [data-orientation="vertical"]:not(.qti-orientation-horizontal)
+  )
+  :where([data-slot="choice-interaction-choice"]),
+.qti-choices-stacking-4:where([data-slot="choice-interaction"]):where(
+    .qti-orientation-vertical,
+    [data-orientation="vertical"]:not(.qti-orientation-horizontal)
+  )
+  :where([data-slot="choice-interaction-choice"]),
+.qti-choices-stacking-5:where([data-slot="choice-interaction"]):where(
+    .qti-orientation-vertical,
+    [data-orientation="vertical"]:not(.qti-orientation-horizontal)
+  )
+  :where([data-slot="choice-interaction-choice"]) {
+  break-inside: avoid;
+  margin-block-end: 0.5rem;
+}
+
+/*
+ * Hidden controls (vocab.txt:4739-4785): the Indicator hides too, and the Control stays hidden
+ * from sight only, so it stays focusable, named and in the form. This rule outranks the theme's
+ * forced-colours rule, so the Control stays hidden there as well.
+ */
+.qti-input-control-hidden:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-control"]) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.qti-input-control-hidden:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-indicator"]) {
+  display: none;
+}
+
+/*
+ * With no control to show it, a selected row shows its selection by a wider border, which forced
+ * colours keep (they recolour a border, and drop a background, but keep its width); the padding
+ * gives the theme's row padding back the width, so the row does not move. Focus already shows as
+ * the row's outline, which forced colours keep too.
+ */
+.qti-input-control-hidden:where([data-slot="choice-interaction"])
+  :where(
+    [data-slot="choice-interaction-choice"]:has([data-slot="choice-interaction-control"]:checked)
+  ) {
+  border-width: 3px;
+  padding: calc(0.5rem - 2px) calc(0.75rem - 2px);
+}
+
+/*
+ * Vertical writing for Choice (vocab.txt:4802-4840): the Root is set in vertical lines, so its
+ * choices flow right to left (vertical-rl) or left to right (vertical-lr), and the generated
+ * labels stand upright.
+ */
+.qti-writing-orientation-vertical-rl:where([data-slot="choice-interaction"]) {
+  writing-mode: vertical-rl;
+}
+
+.qti-writing-orientation-vertical-lr:where([data-slot="choice-interaction"]) {
+  writing-mode: vertical-lr;
+}
+
+.qti-writing-orientation-vertical-rl:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before,
+.qti-writing-orientation-vertical-lr:where([data-slot="choice-interaction"])
+  :where([data-slot="choice-interaction-choice"])::before {
+  text-orientation: upright;
+}
+
+/*
+ * Text Entry's input widths (vocab.txt:4847) and Inline Choice's selection widths (vocab.txt:5711):
+ * qti-input-width-N makes the Control at least N characters wide, N taken from the class name
+ * (section 1.2.7.1's line for qti-input-width-35 says 40 characters, a typo).
+ */
+.qti-input-width-1:where([data-slot="text-entry-interaction"])
+  :where([data-slot="text-entry-interaction-control"]),
+.qti-input-width-1:where([data-slot="inline-choice-interaction"])
+  :where([data-slot="inline-choice-interaction-control"]) {
+  min-inline-size: 1ch;
+}
+
+.qti-input-width-2:where([data-slot="text-entry-interaction"])
+  :where([data-slot="text-entry-interaction-control"]),
+.qti-input-width-2:where([data-slot="inline-choice-interaction"])
+  :where([data-slot="inline-choice-interaction-control"]) {
+  min-inline-size: 2ch;
+}
+
+.qti-input-width-3:where([data-slot="text-entry-interaction"])
+  :where([data-slot="text-entry-interaction-control"]),
+.qti-input-width-3:where([data-slot="inline-choice-interaction"])
+  :where([data-slot="inline-choice-interaction-control"]) {
+  min-inline-size: 3ch;
+}
+
+.qti-input-width-4:where([data-slot="text-entry-interaction"])
+  :where([data-slot="text-entry-interaction-control"]),
+.qti-input-width-4:where([data-slot="inline-choice-interaction"])
+  :where([data-slot="inline-choice-interaction-control"]) {
+  min-inline-size: 4ch;
+}
+
+.qti-input-width-6:where([data-slot="text-entry-interaction"])
+  :where([data-slot="text-entry-interaction-control"]),
+.qti-input-width-6:where([data-slot="inline-choice-interaction"])
+  :where([data-slot="inline-choice-interaction-control"]) {
+  min-inline-size: 6ch;
+}
+
+.qti-input-width-10:where([data-slot="text-entry-interaction"])
+  :where([data-slot="text-entry-interaction-control"]),
+.qti-input-width-10:where([data-slot="inline-choice-interaction"])
+  :where([data-slot="inline-choice-interaction-control"]) {
+  min-inline-size: 10ch;
+}
+
+.qti-input-width-15:where([data-slot="text-entry-interaction"])
+  :where([data-slot="text-entry-interaction-control"]),
+.qti-input-width-15:where([data-slot="inline-choice-interaction"])
+  :where([data-slot="inline-choice-interaction-control"]) {
+  min-inline-size: 15ch;
+}
+
+.qti-input-width-20:where([data-slot="text-entry-interaction"])
+  :where([data-slot="text-entry-interaction-control"]),
+.qti-input-width-20:where([data-slot="inline-choice-interaction"])
+  :where([data-slot="inline-choice-interaction-control"]) {
+  min-inline-size: 20ch;
+}
+
+.qti-input-width-25:where([data-slot="text-entry-interaction"])
+  :where([data-slot="text-entry-interaction-control"]),
+.qti-input-width-25:where([data-slot="inline-choice-interaction"])
+  :where([data-slot="inline-choice-interaction-control"]) {
+  min-inline-size: 25ch;
+}
+
+.qti-input-width-30:where([data-slot="text-entry-interaction"])
+  :where([data-slot="text-entry-interaction-control"]),
+.qti-input-width-30:where([data-slot="inline-choice-interaction"])
+  :where([data-slot="inline-choice-interaction-control"]) {
+  min-inline-size: 30ch;
+}
+
+.qti-input-width-35:where([data-slot="text-entry-interaction"])
+  :where([data-slot="text-entry-interaction-control"]),
+.qti-input-width-35:where([data-slot="inline-choice-interaction"])
+  :where([data-slot="inline-choice-interaction-control"]) {
+  min-inline-size: 35ch;
+}
+
+.qti-input-width-40:where([data-slot="text-entry-interaction"])
+  :where([data-slot="text-entry-interaction-control"]),
+.qti-input-width-40:where([data-slot="inline-choice-interaction"])
+  :where([data-slot="inline-choice-interaction-control"]) {
+  min-inline-size: 40ch;
+}
+
+.qti-input-width-45:where([data-slot="text-entry-interaction"])
+  :where([data-slot="text-entry-interaction-control"]),
+.qti-input-width-45:where([data-slot="inline-choice-interaction"])
+  :where([data-slot="inline-choice-interaction-control"]) {
+  min-inline-size: 45ch;
+}
+
+.qti-input-width-50:where([data-slot="text-entry-interaction"])
+  :where([data-slot="text-entry-interaction-control"]),
+.qti-input-width-50:where([data-slot="inline-choice-interaction"])
+  :where([data-slot="inline-choice-interaction-control"]) {
+  min-inline-size: 50ch;
+}
+
+.qti-input-width-72:where([data-slot="text-entry-interaction"])
+  :where([data-slot="text-entry-interaction-control"]),
+.qti-input-width-72:where([data-slot="inline-choice-interaction"])
+  :where([data-slot="inline-choice-interaction-control"]) {
+  min-inline-size: 72ch;
+}
+
+/*
+ * Extended Text's heights (vocab.txt:4997): qti-height-lines-N makes the Control about N lines
+ * tall, in its own line height. Its width is its Root's already.
+ */
+.qti-height-lines-3:where([data-slot="extended-text-interaction"])
+  :where([data-slot="extended-text-interaction-control"]) {
+  block-size: 3lh;
+}
+
+.qti-height-lines-6:where([data-slot="extended-text-interaction"])
+  :where([data-slot="extended-text-interaction-control"]) {
+  block-size: 6lh;
+}
+
+.qti-height-lines-15:where([data-slot="extended-text-interaction"])
+  :where([data-slot="extended-text-interaction-control"]) {
+  block-size: 15lh;
+}
+
+/*
+ * Vertical writing for the text interactions and Inline Choice (vocab.txt:4961, :5171, :5818): the
+ * Root, and so its Control, is set in vertical lines, right to left (vertical-rl) or left to right
+ * (vertical-lr).
+ */
+.qti-writing-orientation-vertical-rl:where([data-slot="text-entry-interaction"]),
+.qti-writing-orientation-vertical-rl:where([data-slot="extended-text-interaction"]),
+.qti-writing-orientation-vertical-rl:where([data-slot="inline-choice-interaction"]) {
+  writing-mode: vertical-rl;
+}
+
+.qti-writing-orientation-vertical-lr:where([data-slot="text-entry-interaction"]),
+.qti-writing-orientation-vertical-lr:where([data-slot="extended-text-interaction"]),
+.qti-writing-orientation-vertical-lr:where([data-slot="inline-choice-interaction"]) {
+  writing-mode: vertical-lr;
+}
+
+/*
+ * The body's utility classes (vocab.txt:441, :559, :578, :1010, :1061), on any element of the item
+ * body: each class alone, so it counts once.
+ */
+
+/* qti-hidden: neither seen nor read by assistive technology. */
+.qti-hidden {
+  display: none;
+}
+
+/*
+ * qti-visually-hidden: hidden from sight only, as the Choice Control is, so assistive technology
+ * still reads it; never by clip, which is below the floor.
+ */
+.qti-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.qti-underline {
+  text-decoration-line: underline;
+}
+
+.qti-italic {
+  font-style: italic;
+}
+
+.qti-bordered {
+  border: 1px solid var(--border, oklch(0.922 0 0));
+}
+
+/*
+ * qti-well: set apart on the muted surface. It sets no text colour, so its text keeps the host's,
+ * 18.15:1 on --muted at the fallbacks, where --muted-foreground would be 4.34:1 (vocab.txt:1070
+ * asks the well to keep WCAG AA text contrast).
+ */
+.qti-well {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border, oklch(0.922 0 0));
+  border-radius: var(--radius, 0.625rem);
+  background-color: var(--muted, oklch(0.97 0 0));
+}
+
+/*
+ * The item Root's containment (OD-14 (a)), the base section's one rule that is not a vocabulary
+ * class. Author content is laid out and painted inside the Root, fixed and absolute content
+ * included, so an authored host utility class such as "fixed inset-0 z-50" cannot cover the host
+ * page; content wider than the Root scrolls inside it; and the padding, the focus ring's 3px width
+ * plus its 0 offset, keeps every focus ring inside it unclipped.
+ */
+:where([data-slot="item"]) {
+  contain: layout paint;
+  overflow: auto;
+  padding: 3px;
+}
+
+/* == theme: plate's default theme, on the part markers == */
+
+/* The item Root: a block. The page's surface, text colour and font are the host's. */
+:where([data-slot="item"]) {
+  display: block;
+}
+
+/* The Choice Root, a native fieldset: no border, margin or padding, and no minimum width. */
+:where(fieldset[data-slot="choice-interaction"]) {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+}
+
+/* The Prompt's legend shape loses the legend's own padding, so both shapes look alike. */
+:where(legend[data-slot="choice-interaction-prompt"]) {
+  padding: 0;
+}
+
+/* The Prompt, a legend or its own element; Extended Text's Prompt takes the same look. */
+:where([data-slot="choice-interaction-prompt"], [data-slot="extended-text-interaction-prompt"]) {
+  display: block;
+  margin-block-end: 0.75rem;
+  font-weight: 500;
+}
+
+/* The Choices: no bullets, and space between the rows. */
+:where([data-slot="choice-interaction-choices"]) {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A Choice row: a bordered box that holds its hidden Control. */
+:where([data-slot="choice-interaction-choice"]) {
+  position: relative;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border, oklch(0.922 0 0));
+  border-radius: var(--radius, 0.625rem);
+}
+
+/* A Choice row under the pointer, unless its Control is disabled. */
+:where(
+  [data-slot="choice-interaction-choice"]:hover:not(
+      :has([data-slot="choice-interaction-control"]:disabled)
+    )
+) {
+  background-color: var(--accent, oklch(0.97 0 0));
+  color: var(--accent-foreground, oklch(0.205 0 0));
+}
+
+/* A selected Choice row. */
+:where(
+  [data-slot="choice-interaction-choice"]:has([data-slot="choice-interaction-control"]:checked)
+) {
+  border-color: var(--primary, oklch(0.205 0 0));
+}
+
+/* A Choice row whose Control holds a refused answer; after the selected rule, so it shows. */
+:where(
+  [data-slot="choice-interaction-choice"]:has(
+    [data-slot="choice-interaction-control"][aria-invalid="true"]
+  )
+) {
+  border-color: var(--destructive, oklch(0.577 0.245 27.325));
+}
+
+/* A Choice row whose Control is disabled. */
+:where(
+  [data-slot="choice-interaction-choice"]:has([data-slot="choice-interaction-control"]:disabled)
+) {
+  opacity: 0.5;
+}
+
+/*
+ * A Choice row in review or solution: at full strength, after the rule above. Its Control is
+ * disabled there only because the answer it shows cannot change, as a text Control is readonly
+ * there; a Root the author disabled, which carries data-disabled, stays dimmed in every mode.
+ */
+:where(
+  [data-slot="choice-interaction"][data-mode="review"]:not([data-disabled])
+    [data-slot="choice-interaction-choice"],
+  [data-slot="choice-interaction"][data-mode="solution"]:not([data-disabled])
+    [data-slot="choice-interaction-choice"]
+) {
+  opacity: 1;
+}
+
+/* Focus on a Choice row, by its Control: shadcn's 3px ring at half strength. */
+:where(
+  [data-slot="choice-interaction-choice"]:has(
+    [data-slot="choice-interaction-control"]:focus-visible
+  )
+) {
+  outline-width: 3px;
+  outline-offset: 0;
+  outline-style: solid;
+  outline-color: color-mix(in oklab, var(--ring, oklch(0.708 0 0)) 50%, transparent);
+}
+
+/*
+ * The Choice Control, hidden from sight only: it stays focusable, named and in the form, so never
+ * display: none or visibility: hidden.
+ */
+:where([data-slot="choice-interaction-control"]) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The Label: the Indicator and the choice content on one line, across the row. */
+:where([data-slot="choice-interaction-label"]) {
+  display: block;
+}
+
+/* The Indicator, the visible mark: a box for a checkbox Control. */
+:where([data-slot="choice-interaction-indicator"]) {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 1em;
+  height: 1em;
+  margin-inline-end: 0.5em;
+  padding: 3px;
+  border: 1px solid var(--input, oklch(0.922 0 0));
+  border-radius: calc(var(--radius, 0.625rem) * 0.6);
+  vertical-align: middle;
+}
+
+/* The Indicator for a radio Control: round. */
+:where(
+  [data-slot="choice-interaction-choice"]:has(
+      [data-slot="choice-interaction-control"][type="radio"]
+    )
+    [data-slot="choice-interaction-indicator"]
+) {
+  border-radius: 50%;
+}
+
+/* The Indicator of a selected choice: filled. */
+:where(
+  [data-slot="choice-interaction-choice"]:has([data-slot="choice-interaction-control"]:checked)
+    [data-slot="choice-interaction-indicator"]
+) {
+  border-color: var(--primary, oklch(0.205 0 0));
+  background-color: var(--primary, oklch(0.205 0 0));
+}
+
+/* The Indicator of a selected radio: a dot inside the ring, the padding left unfilled. */
+:where(
+  [data-slot="choice-interaction-choice"]:has(
+      [data-slot="choice-interaction-control"][type="radio"]:checked
+    )
+    [data-slot="choice-interaction-indicator"]
+) {
+  background-clip: content-box;
+}
+
+/* The Text Entry Root: inline, in the run of the item's text. */
+:where([data-slot="text-entry-interaction"]) {
+  display: inline-block;
+}
+
+/* The Inline Choice Root: inline, in the run of the item's text. */
+:where([data-slot="inline-choice-interaction"]) {
+  display: inline-block;
+}
+
+/* The Inline Choice Label: inline before its Control, a little apart from it. */
+:where([data-slot="inline-choice-interaction-label"]) {
+  margin-inline-end: 0.25em;
+}
+
+/* The Extended Text Root: a block. */
+:where([data-slot="extended-text-interaction"]) {
+  display: block;
+}
+
+/*
+ * The text Controls and the Inline Choice Control: the host's font, and the card's surface and
+ * text, so a dark host theme reads (a browser draws its own light field otherwise, under text the
+ * Control would inherit).
+ */
+:where(
+  input[data-slot="text-entry-interaction-control"],
+  textarea[data-slot="extended-text-interaction-control"],
+  [data-slot="inline-choice-interaction-control"]
+) {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--input, oklch(0.922 0 0));
+  border-radius: calc(var(--radius, 0.625rem) * 0.8);
+  font: inherit;
+  background-color: var(--card, oklch(1 0 0));
+  color: var(--card-foreground, oklch(0.145 0 0));
+}
+
+/*
+ * The Inline Choice's Placeholder and Options: the card's surface and text, so the open list reads
+ * in a dark host theme too.
+ */
+:where(
+  [data-slot="inline-choice-interaction-placeholder"],
+  [data-slot="inline-choice-interaction-option"]
+) {
+  background-color: var(--card, oklch(1 0 0));
+  color: var(--card-foreground, oklch(0.145 0 0));
+}
+
+/* The Extended Text Control: the full width of its Root. */
+:where([data-slot="extended-text-interaction-control"]) {
+  display: block;
+  box-sizing: border-box;
+  inline-size: 100%;
+}
+
+/*
+ * Placeholder text on the Control's card surface; at full opacity, since a browser may dim it
+ * below the contrast the colour was chosen for.
+ */
+:where(
+  [data-slot="text-entry-interaction-control"],
+  [data-slot="extended-text-interaction-control"]
+)::placeholder {
+  color: var(--muted-foreground, oklch(0.556 0 0));
+  opacity: 1;
+}
+
+/* A text Control or the Inline Choice Control holding a refused answer. */
+:where(
+  [data-slot="text-entry-interaction-control"][aria-invalid="true"],
+  [data-slot="extended-text-interaction-control"][aria-invalid="true"],
+  [data-slot="inline-choice-interaction-control"][aria-invalid="true"]
+) {
+  border-color: var(--destructive, oklch(0.577 0.245 27.325));
+}
+
+/* A disabled text Control or Inline Choice Control. */
+:where(
+  [data-slot="text-entry-interaction-control"]:disabled,
+  [data-slot="extended-text-interaction-control"]:disabled,
+  [data-slot="inline-choice-interaction-control"]:disabled
+) {
+  opacity: 0.5;
+}
+
+/*
+ * The Inline Choice Control in review or solution: at full strength, after the rule above. A
+ * select has no readonly, so it is disabled there only because the answer it shows cannot change,
+ * as a Choice row's Control is; a Root the author disabled, which carries data-disabled, stays
+ * dimmed in every mode.
+ */
+:where(
+  [data-slot="inline-choice-interaction"][data-mode="review"]:not([data-disabled])
+    [data-slot="inline-choice-interaction-control"],
+  [data-slot="inline-choice-interaction"][data-mode="solution"]:not([data-disabled])
+    [data-slot="inline-choice-interaction-control"]
+) {
+  opacity: 1;
+}
+
+/*
+ * A readonly text Control, as review and solution show one: the muted surface, at full strength,
+ * since its text is the answer shown. It stays a tab stop, so it keeps the focus ring below.
+ */
+:where(
+  [data-slot="text-entry-interaction-control"][readonly],
+  [data-slot="extended-text-interaction-control"][readonly]
+) {
+  background-color: var(--muted, oklch(0.97 0 0));
+  color: var(--card-foreground, oklch(0.145 0 0));
+}
+
+/* Focus on a text Control or the Inline Choice Control: the same ring as a Choice row's. */
+:where(
+  [data-slot="text-entry-interaction-control"]:focus-visible,
+  [data-slot="extended-text-interaction-control"]:focus-visible,
+  [data-slot="inline-choice-interaction-control"]:focus-visible
+) {
+  outline-width: 3px;
+  outline-offset: 0;
+  outline-style: solid;
+  outline-color: color-mix(in oklab, var(--ring, oklch(0.708 0 0)) 50%, transparent);
+}
+
+/*
+ * The Status region, the results box: a card. An author places it where they like, so it is styled
+ * on its own markers only and looks the same anywhere.
+ */
+:where([data-slot="item-status"]) {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border, oklch(0.922 0 0));
+  border-radius: var(--radius, 0.625rem);
+  background-color: var(--card, oklch(1 0 0));
+  color: var(--card-foreground, oklch(0.145 0 0));
+}
+
+/*
+ * The Status region holding Messages, which it does only when an answer was refused: the refused
+ * look keys on the region itself, never on an ancestor or a state attribute.
+ */
+:where([data-slot="item-status"]:has([data-slot="item-message"])) {
+  border-color: var(--destructive, oklch(0.577 0.245 27.325));
+}
+
+/* The Status heading, at whatever level: the region's own size, set apart by weight. */
+:where([data-slot="item-status-heading"]) {
+  margin-block-start: 0;
+  margin-block-end: 0.5rem;
+  font-size: inherit;
+  font-weight: 600;
+}
+
+/* The Messages: no bullets, and space between them. */
+:where([data-slot="item-messages"]) {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A Message, a refused answer's reason. */
+:where([data-slot="item-message"]) {
+  color: var(--destructive, oklch(0.577 0.245 27.325));
+}
+
+/*
+ * The Notice: subdued text on a framed card surface of its own, so its pair is 4.73:1 at the
+ * fallbacks and 6.91:1 under .dark wherever it stands, in a qti-well or a Choice row under the
+ * pointer included. Forced colours drop the surface and give the text and the frame system
+ * colours, so it stays readable there and the frame still sets it apart.
+ */
+:where([data-slot="item-notice"]) {
+  padding: 0.125rem 0.375rem;
+  border: 1px solid var(--border, oklch(0.922 0 0));
+  border-radius: var(--radius, 0.625rem);
+  background-color: var(--card, oklch(1 0 0));
+  color: var(--muted-foreground, oklch(0.556 0 0));
+}
+
+/*
+ * The test navigation's Root: its parts on one line, wrapping when the line is full. No rule over
+ * a navigation part tests its type, so a button a host swaps to type="submit" looks the same.
+ */
+:where([data-slot="test-navigation"]) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/*
+ * The item list: no numbers, since each button names its item, and its items on one line,
+ * wrapping.
+ */
+:where([data-slot="test-navigation-items"]) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* An item of the list: a box for its button, with no list marker of its own. */
+:where([data-slot="test-navigation-item"]) {
+  display: block;
+}
+
+/* The navigation buttons: the text Controls' card surface, border and font. */
+:where(
+  [data-slot="test-navigation-previous"],
+  [data-slot="test-navigation-next"],
+  [data-slot="test-navigation-item-button"],
+  [data-slot="test-navigation-submit"],
+  [data-slot="test-navigation-end"]
+) {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--input, oklch(0.922 0 0));
+  border-radius: calc(var(--radius, 0.625rem) * 0.8);
+  font: inherit;
+  background-color: var(--card, oklch(1 0 0));
+  color: var(--card-foreground, oklch(0.145 0 0));
+}
+
+/*
+ * The current item's button: a 2px border in --primary and bold text, so its place shows by width
+ * and weight, not by colour alone (WCAG 1.4.1), forced colours included. The padding gives back
+ * the border's extra pixel. It sets no outline, so the focus ring below holds on it.
+ */
+:where([data-slot="test-navigation-item-button"][aria-current="step"]) {
+  padding: calc(0.25rem - 1px) calc(0.75rem - 1px);
+  border-width: 2px;
+  border-color: var(--primary, oklch(0.205 0 0));
+  font-weight: 600;
+}
+
+/* A navigation button under the pointer, unless it is disabled: a Choice row's hover look. */
+:where(
+  [data-slot="test-navigation-previous"]:hover:not(:disabled),
+  [data-slot="test-navigation-next"]:hover:not(:disabled),
+  [data-slot="test-navigation-item-button"]:hover:not(:disabled),
+  [data-slot="test-navigation-submit"]:hover:not(:disabled),
+  [data-slot="test-navigation-end"]:hover:not(:disabled)
+) {
+  background-color: var(--accent, oklch(0.97 0 0));
+  color: var(--accent-foreground, oklch(0.205 0 0));
+}
+
+/* A disabled navigation button. */
+:where(
+  [data-slot="test-navigation-previous"]:disabled,
+  [data-slot="test-navigation-next"]:disabled,
+  [data-slot="test-navigation-item-button"]:disabled,
+  [data-slot="test-navigation-submit"]:disabled,
+  [data-slot="test-navigation-end"]:disabled
+) {
+  opacity: 0.5;
+}
+
+/* Focus on a navigation button: the same ring as a text Control's. */
+:where(
+  [data-slot="test-navigation-previous"]:focus-visible,
+  [data-slot="test-navigation-next"]:focus-visible,
+  [data-slot="test-navigation-item-button"]:focus-visible,
+  [data-slot="test-navigation-submit"]:focus-visible,
+  [data-slot="test-navigation-end"]:focus-visible
+) {
+  outline-width: 3px;
+  outline-offset: 0;
+  outline-style: solid;
+  outline-color: color-mix(in oklab, var(--ring, oklch(0.708 0 0)) 50%, transparent);
+}
+
+/*
+ * Forced colours drop drawn backgrounds, so the native Control shows in place of the Indicator,
+ * on the Label's line. The Inline Choice Control needs no rule here: it is a native select no rule
+ * hides, so the system draws it, its border and its focus ring in its own colours.
+ */
+@media (forced-colors: active) {
+  :where([data-slot="choice-interaction-control"]) {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  :where([data-slot="choice-interaction-indicator"]) {
+    display: none;
+  }
+
+  :where([data-slot="choice-interaction-label"]) {
+    display: inline;
+  }
+}

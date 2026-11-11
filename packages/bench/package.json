@@ -24,7 +24,7 @@
 		"@effect-bench/testing": "workspace:*",
 		"@harvest/grizzle-engine": "workspace:*",
 		"@harvest/openapi-cli-generator": "workspace:*",
-		"@qti-pie/plate": "catalog:",
+		"@qti-pie/plate": "workspace:*",
 		"@superstarter/todo-protocol": "workspace:*",
 		"effect": "catalog:"
 	},

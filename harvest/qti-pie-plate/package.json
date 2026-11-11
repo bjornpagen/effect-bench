@@ -1,0 +1,24 @@
+{
+	"name": "@qti-pie/plate",
+	"private": true,
+	"description": "qti-pie's plate, harvested from github.com/aidenzepp/qti-pie at f5365d6c2350442e429298e570b0fe1c64912136 (packages/plate/src, without its tests): opening, scoring and rendering QTI 3.0 assessments. Its two generated tables carry a declaration typing them unknown, as the one reader that decodes them through Schema takes them; without it TypeScript infers a literal type for 5.5 MB of JSON, which costs every typecheck that imports plate two minutes.",
+	"type": "module",
+	"sideEffects": false,
+	"imports": {
+		"#plate/*": "./src/*"
+	},
+	"exports": {
+		".": "./src/index.ts",
+		"./effect": "./src/effect.ts"
+	},
+	"scripts": {
+		"typecheck": "effect-tsgo tsrs"
+	},
+	"dependencies": {
+		"@qti-pie/crust": "workspace:*",
+		"effect": "catalog:"
+	},
+	"devDependencies": {
+		"typescript": "catalog:"
+	}
+}
