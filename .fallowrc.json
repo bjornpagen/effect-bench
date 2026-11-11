@@ -4,7 +4,8 @@
 		"packages/devtools/src/oxlint/fixtures.config.ts",
 		"packages/testing/src/vitest/coverage.ts",
 		"packages/testing/src/vitest/mutated-setup.ts",
-		"packages/testing/src/witness.fixtures.ts"
+		"packages/testing/src/witness.fixtures.ts",
+		"packages/bench/src/workloads/*.entry.ts"
 	],
 	"ignorePatterns": ["packages/devtools/src/*/fixtures/**"],
 	"ignoreDependencies": [],
@@ -28,6 +29,10 @@
 			{
 				"name": "devtools",
 				"patterns": ["packages/devtools/**"]
+			},
+			{
+				"name": "bench",
+				"patterns": ["packages/bench/**"]
 			},
 			{
 				"name": "lint-config",
@@ -54,6 +59,10 @@
 			{
 				"from": "lint-config",
 				"allow": ["devtools", "json", "testing"]
+			},
+			{
+				"from": "bench",
+				"allow": ["json", "testing"]
 			}
 		],
 		"coverage": {

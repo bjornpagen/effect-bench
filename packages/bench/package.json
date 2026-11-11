@@ -1,0 +1,28 @@
+{
+	"name": "@effect-bench/bench",
+	"private": true,
+	"description": "The workloads and the harness: each workload runs real code on an input built in memory, and the harness times it and prints the digest every engine must agree on.",
+	"type": "module",
+	"sideEffects": false,
+	"imports": {
+		"#*": "./src/*"
+	},
+	"scripts": {
+		"typecheck": "effect-tsgo tsrs",
+		"superlint": "superlint",
+		"oxlint": "oxlint",
+		"bundle": "node scripts/bundle.ts"
+	},
+	"dependencies": {
+		"@effect-bench/json": "workspace:*",
+		"@effect-bench/testing": "workspace:*",
+		"effect": "catalog:"
+	},
+	"devDependencies": {
+		"@effect-bench/devtools": "workspace:*",
+		"@effect/platform-node": "catalog:",
+		"@types/node": "catalog:",
+		"esbuild": "catalog:",
+		"typescript": "catalog:"
+	}
+}
