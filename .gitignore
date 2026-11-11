@@ -1,0 +1,24 @@
+# Unanchored, so each also matches inside every workspace package.
+node_modules/
+dist/
+*.tsbuildinfo
+.turbo/
+out/
+.env*
+
+# misc
+.DS_Store
+npm-debug.log*
+.pnpm-debug.log*
+.idea
+
+# Personal skills: local-<name> is discovered by every harness, local/ is nested so none discovers it.
+/.agents/skills/local/*
+/.agents/skills/local-*
+
+# Measurements, never committed: the bench writes its runs here.
+/data/
+
+# tooling scratch
+.fallow/
+.vitest/

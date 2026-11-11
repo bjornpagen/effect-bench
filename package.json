@@ -1,0 +1,70 @@
+{
+	"name": "effect-bench",
+	"private": true,
+	"type": "module",
+	"imports": {
+		"#package.json": "./package.json"
+	},
+	"packageManager": "pnpm@12.16.1",
+	"devEngines": {
+		"runtime": {
+			"name": "node",
+			"version": ">=26",
+			"onFail": "error"
+		}
+	},
+	"scripts": {
+		"prepare": "effect-tsgo patch",
+		"check": "turbo run typecheck superlint oxlint fixtures:superlint fixtures:oxlint format dedupe dead-code architecture",
+		"lint": "turbo run superlint oxlint dead-code architecture",
+		"test": "turbo run test",
+		"fuzz": "node packages/testing/scripts/fuzz.ts",
+		"mutate": "node packages/testing/scripts/mutate.ts",
+		"format:write": "oxfmt . && turbo run oxlint -- --fix && oxfmt .",
+		"typecheck": "effect-tsgo tsrs",
+		"superlint": "superlint",
+		"oxlint": "oxlint oxlint.config.ts",
+		"format": "oxfmt --check .",
+		"dead-code": "fallow dead-code",
+		"architecture": "fallow architecture",
+		"dedupe": "pnpm dedupe --check"
+	},
+	"devDependencies": {
+		"@effect/tsgo": "catalog:",
+		"@effect-bench/devtools": "workspace:*",
+		"@effect-bench/testing": "workspace:*",
+		"@types/node": "catalog:",
+		"fallow": "catalog:",
+		"lefthook": "catalog:",
+		"oxfmt": "catalog:",
+		"oxlint": "catalog:",
+		"oxlint-tsgolint": "catalog:",
+		"turbo": "catalog:",
+		"typescript": "catalog:"
+	},
+	"superlint": {
+		"effectFree": [],
+		"exceptions": [
+			{
+				"rule": "no-module-state",
+				"files": [
+					"packages/testing/src/vitest/coverage.ts"
+				]
+			}
+		],
+		"uncheckedVocabularyLiteral": {
+			"support": [],
+			"vocabularies": [],
+			"titled": [
+				"describe",
+				"it",
+				"effect",
+				"live",
+				"each"
+			],
+			"explanations": [
+				"message"
+			]
+		}
+	}
+}

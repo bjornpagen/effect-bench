@@ -1,0 +1,3 @@
+{
+	"extends": "@effect-bench/devtools/tsconfig.base.json"
+}

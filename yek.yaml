@@ -1,0 +1,7 @@
+ignore_patterns:
+  - "yek.yaml"
+  - "packages/devtools/**"
+  - "pnpm-lock.yaml"
+priority_rules:
+  - score: 100
+    pattern: "^oxlint\\.config\\.ts$"

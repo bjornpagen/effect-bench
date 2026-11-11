@@ -1,0 +1,63 @@
+{
+	"$schema": "./node_modules/fallow/schema.json",
+	"entry": [
+		"packages/devtools/src/oxlint/fixtures.config.ts",
+		"packages/testing/src/vitest/coverage.ts",
+		"packages/testing/src/vitest/mutated-setup.ts",
+		"packages/testing/src/witness.fixtures.ts"
+	],
+	"ignorePatterns": ["packages/devtools/src/*/fixtures/**"],
+	"ignoreDependencies": [],
+	"rules": {
+		"require-suppression-reason": "error"
+	},
+	"boundaries": {
+		"zones": [
+			{
+				"name": "testing-suites",
+				"patterns": ["packages/testing/src/**/*.test.ts", "packages/testing/vitest.config.ts"]
+			},
+			{
+				"name": "testing",
+				"patterns": ["packages/testing/**"]
+			},
+			{
+				"name": "json",
+				"patterns": ["packages/json/**"]
+			},
+			{
+				"name": "devtools",
+				"patterns": ["packages/devtools/**"]
+			},
+			{
+				"name": "lint-config",
+				"patterns": ["oxlint.config.ts"]
+			}
+		],
+		"rules": [
+			{
+				"from": "testing-suites",
+				"allow": ["json", "testing"]
+			},
+			{
+				"from": "testing",
+				"allow": ["json"]
+			},
+			{
+				"from": "json",
+				"allow": []
+			},
+			{
+				"from": "devtools",
+				"allow": ["json"]
+			},
+			{
+				"from": "lint-config",
+				"allow": ["devtools", "json", "testing"]
+			}
+		],
+		"coverage": {
+			"requireAllFiles": true
+		}
+	}
+}
