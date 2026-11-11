@@ -9,7 +9,18 @@
 		"oxlint.config.ts"
 	],
 	"globalEnv": ["NODE_OPTIONS", "NODE_ENV"],
-	"globalPassThroughEnv": ["COREPACK_HOME", "TMPDIR"],
+	"globalPassThroughEnv": [
+		"COREPACK_HOME",
+		"TMPDIR",
+		"HTTP_PROXY",
+		"HTTPS_PROXY",
+		"NO_PROXY",
+		"ALL_PROXY",
+		"http_proxy",
+		"https_proxy",
+		"no_proxy",
+		"all_proxy"
+	],
 	"tasks": {
 		"source": {
 			"description": "Carries each package's source hash to its dependents, so a check reruns when a package it loads changes, without waiting for that package's checks.",
