@@ -1,0 +1,22 @@
+{
+	"name": "@edullm/bronze-repository",
+	"private": true,
+	"description": "edullm's bronze repository, harvested from primer-team/edullm at 261203b6532a5d9034808fe26874e9096a4f36cc (packages/data/bronze-repository): the PostgreSQL COPY-binary frame scanner and the numbers, contract and SQLSTATE modules it reads.",
+	"type": "module",
+	"sideEffects": false,
+	"imports": {
+		"#*": "./src/*"
+	},
+	"exports": {
+		"./*": "./src/*"
+	},
+	"scripts": {
+		"typecheck": "effect-tsgo tsrs"
+	},
+	"dependencies": {
+		"effect": "catalog:"
+	},
+	"devDependencies": {
+		"typescript": "catalog:"
+	}
+}

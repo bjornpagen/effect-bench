@@ -1,0 +1,22 @@
+{
+	"name": "@edullm/database",
+	"private": true,
+	"description": "edullm's database package, harvested from primer-team/edullm at 261203b6532a5d9034808fe26874e9096a4f36cc (packages/data/database): the BSON decoder its archive reads MongoDB exports with.",
+	"type": "module",
+	"sideEffects": false,
+	"imports": {
+		"#*": "./src/*"
+	},
+	"exports": {
+		"./*": "./src/*"
+	},
+	"scripts": {
+		"typecheck": "effect-tsgo tsrs"
+	},
+	"dependencies": {
+		"effect": "catalog:"
+	},
+	"devDependencies": {
+		"typescript": "catalog:"
+	}
+}

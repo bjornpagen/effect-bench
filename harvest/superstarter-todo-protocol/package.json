@@ -1,0 +1,22 @@
+{
+	"name": "@superstarter/todo-protocol",
+	"private": true,
+	"description": "superstarter's todo protocol, harvested from superbuilders/superstarter at 326f1f828f8419f1ef080523671a7a2da9d1c014 (packages/todo-protocol): the server actions' wire contracts, the todo brands and the failures that cross the wire.",
+	"type": "module",
+	"sideEffects": false,
+	"imports": {
+		"#*": "./src/*"
+	},
+	"exports": {
+		"./*": "./src/*"
+	},
+	"scripts": {
+		"typecheck": "effect-tsgo tsrs"
+	},
+	"dependencies": {
+		"effect": "catalog:"
+	},
+	"devDependencies": {
+		"typescript": "catalog:"
+	}
+}

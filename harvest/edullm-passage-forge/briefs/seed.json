@@ -1,0 +1,79 @@
+{
+	"key": "c_t_seed",
+	"position": 44,
+	"objective": {
+		"idea": "Plants grow from seeds when they get water.",
+		"newInformation": [
+			"A seed grows a root first, down into the dirt.",
+			"Then a small green shoot comes up out of the dirt.",
+			"The first leaves are small and round."
+		],
+		"mayRestate": []
+	},
+	"firmForms": [
+		"who",
+		"what_did",
+		"what_object",
+		"what_thing",
+		"what_actor",
+		"where",
+		"where_from",
+		"when",
+		"why_because",
+		"why_to"
+	],
+	"taughtWords": [
+		{
+			"word": "next to",
+			"atom": "v_nextto"
+		},
+		{
+			"word": "behind",
+			"atom": "v_behind"
+		},
+		{
+			"word": "over",
+			"atom": "v_over"
+		},
+		{
+			"word": "happy",
+			"atom": "v_happy"
+		}
+	],
+	"taughtConcepts": [
+		{
+			"concept": "seed",
+			"atom": "k_seed",
+			"definition": "A seed is the small hard part a plant grows from."
+		},
+		{
+			"concept": "plant",
+			"atom": "k_plants",
+			"definition": "A plant is a living thing that grows in dirt and needs water."
+		}
+	],
+	"taughtRules": [
+		{
+			"rule": "Plants need water to grow.",
+			"atom": "k_plants",
+			"entails": "no water -> the plant did not grow"
+		}
+	],
+	"roster": ["Sam", "Emma", "Mia", "Ana", "Max", "Leo", "Rosa", "Ben"],
+	"stage": {
+		"sentences": 6,
+		"questions": 5,
+		"maxWordsPerSentence": 8,
+		"orderFree": false,
+		"pronounsAllowed": false,
+		"requireInference": false,
+		"requireMainIdea": false,
+		"newItems": {
+			"min": 2,
+			"max": 3
+		},
+		"cohesion": "high"
+	},
+	"setting": "a kitchen window",
+	"avoid": ["kudzu", "vine"]
+}

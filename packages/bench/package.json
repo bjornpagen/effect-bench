@@ -15,11 +15,15 @@
 	},
 	"dependencies": {
 		"@aidenzepp/effect-xml": "catalog:",
+		"@edullm/bronze-repository": "workspace:*",
+		"@edullm/database": "workspace:*",
+		"@edullm/passage-forge": "workspace:*",
 		"@effect-bench/json": "workspace:*",
 		"@effect-bench/testing": "workspace:*",
 		"@harvest/grizzle-engine": "workspace:*",
 		"@harvest/openapi-cli-generator": "workspace:*",
 		"@qti-pie/plate": "catalog:",
+		"@superstarter/todo-protocol": "workspace:*",
 		"effect": "catalog:"
 	},
 	"devDependencies": {

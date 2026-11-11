@@ -1,0 +1,24 @@
+{
+	"name": "@edullm/passage-forge",
+	"private": true,
+	"description": "edullm's passage forge, harvested from primer-team/edullm at 261203b6532a5d9034808fe26874e9096a4f36cc (packages/content/passage-forge): the passage analyser, the brief and manifest schemas and the text model they share, with the forge's four committed briefs.",
+	"type": "module",
+	"sideEffects": false,
+	"imports": {
+		"#*": "./src/*"
+	},
+	"exports": {
+		"./*": "./src/*",
+		"./briefs/*": "./briefs/*"
+	},
+	"scripts": {
+		"typecheck": "effect-tsgo tsrs"
+	},
+	"dependencies": {
+		"effect": "catalog:",
+		"arkregex": "catalog:"
+	},
+	"devDependencies": {
+		"typescript": "catalog:"
+	}
+}

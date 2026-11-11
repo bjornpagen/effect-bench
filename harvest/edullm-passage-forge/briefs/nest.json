@@ -1,0 +1,71 @@
+{
+	"key": "c_t_nest",
+	"position": 38,
+	"objective": {
+		"idea": "Birds make homes. A nest is a bird's home, made from sticks and grass.",
+		"newInformation": [
+			"A robin puts mud inside its nest.",
+			"The mud gets hard and holds the nest together.",
+			"The robin sits on the nest to keep its eggs warm."
+		],
+		"mayRestate": []
+	},
+	"firmForms": [
+		"who",
+		"what_did",
+		"what_object",
+		"what_thing",
+		"what_actor",
+		"where",
+		"where_from",
+		"when"
+	],
+	"taughtWords": [
+		{
+			"word": "next to",
+			"atom": "v_nextto"
+		},
+		{
+			"word": "behind",
+			"atom": "v_behind"
+		},
+		{
+			"word": "between",
+			"atom": "v_between"
+		},
+		{
+			"word": "over",
+			"atom": "v_over"
+		}
+	],
+	"taughtConcepts": [
+		{
+			"concept": "pond",
+			"atom": "k_pond",
+			"definition": "A pond is small, still water with land all around."
+		},
+		{
+			"concept": "nest",
+			"atom": "k_nest",
+			"definition": "A nest is a bird's home. Birds make nests from sticks and grass."
+		}
+	],
+	"taughtRules": [],
+	"roster": ["Sam", "Emma", "Mia", "Ana", "Max", "Leo", "Rosa", "Ben"],
+	"stage": {
+		"sentences": 7,
+		"questions": 5,
+		"maxWordsPerSentence": 8,
+		"orderFree": false,
+		"pronounsAllowed": false,
+		"requireInference": false,
+		"requireMainIdea": false,
+		"newItems": {
+			"min": 2,
+			"max": 3
+		},
+		"cohesion": "high"
+	},
+	"setting": "the pond, early morning",
+	"avoid": ["duck", "bread", "Max"]
+}

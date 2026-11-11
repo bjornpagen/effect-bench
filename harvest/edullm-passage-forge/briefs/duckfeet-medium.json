@@ -1,0 +1,78 @@
+{
+	"key": "c_t_duckfeet_med",
+	"position": 110,
+	"objective": {
+		"idea": "Animals have body parts that help them do things.",
+		"newInformation": [
+			"A duck has wide, flat feet.",
+			"The duck's wide feet push the water, so the duck swims fast.",
+			"A chicken has thin feet that cannot push the water, so it does not swim."
+		],
+		"mayRestate": []
+	},
+	"firmForms": [
+		"who",
+		"what_did",
+		"what_object",
+		"what_thing",
+		"what_actor",
+		"where",
+		"when",
+		"why_because",
+		"why_to",
+		"how",
+		"not"
+	],
+	"taughtWords": [
+		{
+			"word": "wide",
+			"atom": "v_wide"
+		},
+		{
+			"word": "thin",
+			"atom": "v_thin"
+		},
+		{
+			"word": "flat",
+			"atom": "v_flat"
+		},
+		{
+			"word": "fast",
+			"atom": "v_fast"
+		},
+		{
+			"word": "behind",
+			"atom": "v_behind"
+		}
+	],
+	"taughtConcepts": [
+		{
+			"concept": "pond",
+			"atom": "k_pond",
+			"definition": "A pond is small, still water with land all around."
+		},
+		{
+			"concept": "body part",
+			"atom": "k_bodyparts",
+			"definition": "Animals have body parts that help them do things, like wings to fly."
+		}
+	],
+	"taughtRules": [],
+	"roster": ["Sam", "Emma", "Mia", "Ana", "Max", "Leo", "Rosa", "Ben"],
+	"stage": {
+		"sentences": 7,
+		"questions": 5,
+		"maxWordsPerSentence": 8,
+		"orderFree": true,
+		"pronounsAllowed": true,
+		"requireInference": false,
+		"requireMainIdea": false,
+		"newItems": {
+			"min": 3,
+			"max": 3
+		},
+		"cohesion": "medium"
+	},
+	"setting": "the pond",
+	"avoid": ["bread"]
+}
