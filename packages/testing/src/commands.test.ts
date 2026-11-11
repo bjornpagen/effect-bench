@@ -15,7 +15,7 @@ import { constant, int } from "#gen.ts"
 import { wordsOf } from "#random.ts"
 import { notesOnly } from "#sense.ts"
 import { completeShrink, shrink } from "#shrink.ts"
-import { generate, randomChooser } from "#source.ts"
+import { generate, randomChooser, recorder } from "#source.ts"
 import { searched } from "#vitest/searched.ts"
 
 type Queue = ReadonlyArray<number>
@@ -157,8 +157,11 @@ describe("a state machine", () => {
 		() =>
 			Effect.gen(function* () {
 				const generator = program(QUEUE, { min: 0, max: 12 })
+				const recorded = recorder()
 				const found = yield* Effect.findFirst(
-					Arr.map(Arr.range(0, 999), (seed) => generate(generator, randomChooser(wordsOf(seed)))),
+					Arr.map(Arr.range(0, 999), (seed) =>
+						generate(recorded, generator, randomChooser(wordsOf(seed)))
+					),
 					(generated) => failsOn(CAPACITY - 1)(generated.value)
 				)
 				const failing = Option.getOrThrow(found)

@@ -2,7 +2,7 @@ import { count } from "@effect-bench/testing/enumerate"
 import { array, boolean, type Gen, int, weighted } from "@effect-bench/testing/gen"
 import { wordsOf } from "@effect-bench/testing/random"
 import { completeShrink, shrink } from "@effect-bench/testing/shrink"
-import { forcedChooser, generate, randomChooser } from "@effect-bench/testing/source"
+import { forcedChooser, generate, randomChooser, recorder } from "@effect-bench/testing/source"
 import { Array as Arr, Effect, Formatter } from "effect"
 import type { Workload } from "#workload.ts"
 
@@ -30,12 +30,12 @@ const composite: Gen<unknown> = (source) => {
 /** The streams the generating workloads draw from: one per case, so every engine draws the same cases. */
 const SEEDS: ReadonlyArray<number> = Arr.range(1, 1000)
 
-const sampled = generate(composite, randomChooser(wordsOf(99)))
+const sampled = generate(recorder(), composite, randomChooser(wordsOf(99)))
 
 /** A collection that fails once any item reaches the threshold, and a wide failing case to shrink. */
 const items = array(int(0, 1000), { min: 0, max: 64 })
 
-const failingWide = generate(items, randomChooser(wordsOf(7)))
+const failingWide = generate(recorder(), items, randomChooser(wordsOf(7)))
 
 const reachesThreshold = (values: ReadonlyArray<number>) =>
 	Effect.succeed(Arr.some(values, (value) => value >= 500))
@@ -46,7 +46,10 @@ export const TESTING_WORKLOADS: ReadonlyArray<Workload> = [
 		name: "testing-generate",
 		source: SOURCE,
 		run: Effect.sync(() => {
-			const cases = Arr.map(SEEDS, (seed) => generate(composite, randomChooser(wordsOf(seed))))
+			const recorded = recorder()
+			const cases = Arr.map(SEEDS, (seed) =>
+				generate(recorded, composite, randomChooser(wordsOf(seed)))
+			)
 			return () => Arr.map(cases, (each) => Formatter.format(each.value))
 		})
 	},
@@ -54,8 +57,9 @@ export const TESTING_WORKLOADS: ReadonlyArray<Workload> = [
 		name: "testing-replay",
 		source: SOURCE,
 		run: Effect.sync(() => {
+			const recorded = recorder()
 			const cases = Arr.map(SEEDS, () =>
-				generate(composite, forcedChooser(sampled.tape.values, sampled.tape.length))
+				generate(recorded, composite, forcedChooser(sampled.tape.values, sampled.tape.length))
 			)
 			return () => Arr.map(cases, (each) => Formatter.format(each.value))
 		})

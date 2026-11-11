@@ -1,12 +1,12 @@
 import { Array as Arr, Duration, Effect, Formatter, Option } from "effect"
 import { describe, it } from "vitest"
 import { count } from "#enumerate.ts"
-import { drawn, explore, Run } from "#explore.ts"
+import { drawn, explore, noDeadline, Run } from "#explore.ts"
 import { noCoverage } from "#features.ts"
 import { array, boolean, type Gen, int, weighted } from "#gen.ts"
 import { wordsOf } from "#random.ts"
 import { boundedShrink, completeShrink, shrink } from "#shrink.ts"
-import { forcedChooser, generate, randomChooser } from "#source.ts"
+import { forcedChooser, generate, randomChooser, recorder } from "#source.ts"
 
 /** A generator shaped like a real suite's: a dependent bound, a collection and weighted branches. */
 const composite: Gen<unknown> = (source) => {
@@ -26,9 +26,18 @@ const composite: Gen<unknown> = (source) => {
 	}
 }
 
-const sampled = generate(composite, randomChooser(wordsOf(99)))
+/** The recorder every case of the benchmarks is drawn on, as a search holds one for all its cases. */
+const recorded = recorder()
 
-const run = Run.of({ seed: 7, source: "environment", replay: Option.none(), fuzz: Option.none() })
+const sampled = generate(recorded, composite, randomChooser(wordsOf(99)))
+
+const run = Run.of({
+	seed: 7,
+	source: "environment",
+	replay: Option.none(),
+	fuzz: Option.none(),
+	deadline: noDeadline
+})
 
 /** An exploration of 125 cases of `composite` whose property costs what `property` costs. */
 const explored = (concurrency: number, property: () => Effect.Effect<void>) =>
@@ -54,10 +63,10 @@ describe("the engine", () => {
 	it("generates, replays, enumerates and shrinks", ({ bench }) =>
 		bench.compare(
 			bench("generate a case from a fresh stream", () => {
-				generate(composite, randomChooser(wordsOf(1)))
+				generate(recorded, composite, randomChooser(wordsOf(1)))
 			}),
 			bench("replay a case from its tape", () => {
-				generate(composite, forcedChooser(sampled.tape.values, sampled.tape.length))
+				generate(recorded, composite, forcedChooser(sampled.tape.values, sampled.tape.length))
 			}),
 			bench("enumerate 1111 cases", () => {
 				count(array(int(0, 9), { min: 0, max: 3 }), 2000)
@@ -65,6 +74,7 @@ describe("the engine", () => {
 			bench("shrink a failing collection to its threshold", () => {
 				const items = array(int(0, 1000), { min: 0, max: 10 })
 				const failing = generate(
+					recorded,
 					items,
 					forcedChooser(Float64Array.of(6, 3, 900, 12, 700, 5, 800), 7)
 				)

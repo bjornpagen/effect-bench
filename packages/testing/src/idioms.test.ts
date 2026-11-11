@@ -46,7 +46,7 @@ import { matching, PatternRefused } from "#pattern.ts"
 import { wordsOf } from "#random.ts"
 import { notesOnly } from "#sense.ts"
 import { completeShrink, shrink } from "#shrink.ts"
-import { type Generated, generate, randomChooser, simplestChooser } from "#source.ts"
+import { generate, type Generated, randomChooser, recorder, simplestChooser } from "#source.ts"
 import { keep, OMISSIONS, type Swarm, swarm, swarmChoice, weightOf } from "#swarm.ts"
 import { bigint, double, doubleOrSpecial, float, uuid } from "#values.ts"
 import { searched } from "#vitest/searched.ts"
@@ -55,7 +55,7 @@ const SEEDS = Arr.range(0, 3999)
 
 /** A case drawn fresh from one seed. */
 const fresh = <A>(generator: Gen<A>, seed: number): Generated<A> =>
-	generate(generator, randomChooser(wordsOf(seed)))
+	generate(recorder(), generator, randomChooser(wordsOf(seed)))
 
 /** One fresh case per seed, as a random search draws them. */
 const draws = <A>(generator: Gen<A>): ReadonlyArray<A> =>
@@ -63,11 +63,12 @@ const draws = <A>(generator: Gen<A>): ReadonlyArray<A> =>
 
 /** Every case of a bounded generator, in enumeration order. */
 const allCases = <A>(generator: Gen<A>): ReadonlyArray<A> => {
+	const recorded = recorder()
 	const cases: Array<A> = []
-	let step: Enumerated<A> = enumerated(generator, firstBranch)
+	let step: Enumerated<A> = enumerated(recorded, generator, firstBranch)
 	cases.push(step.generated.value)
 	while (Option.isSome(step.next)) {
-		step = enumerated(generator, step.next.value)
+		step = enumerated(recorded, generator, step.next.value)
 		cases.push(step.generated.value)
 	}
 	return cases
@@ -282,7 +283,10 @@ describe("uuids", () => {
 	)
 
 	it("shrink a version 7 UUID to the epoch's", () => {
-		strictEqual(generate(uuid(7), simplestChooser).value, "00000000-0000-7000-8000-000000000000")
+		strictEqual(
+			generate(recorder(), uuid(7), simplestChooser).value,
+			"00000000-0000-7000-8000-000000000000"
+		)
 	})
 })
 
@@ -434,6 +438,7 @@ describe("computed weights", () => {
 
 	it("draws its floor, and records no decision, when no option or only one has weight", () => {
 		const floor = generate(
+			recorder(),
 			proportional([
 				[0, constant("floor")],
 				[0, constant("other")]
@@ -442,6 +447,7 @@ describe("computed weights", () => {
 		)
 		deepStrictEqual([floor.value, floor.tape.length], ["floor", 0])
 		const alone = generate(
+			recorder(),
 			proportional([
 				[0, constant("off")],
 				[5, constant("alone")]
@@ -611,7 +617,7 @@ describe("corrupted artifacts", () => {
 	})
 
 	it("draw an artifact no rule has a site in live, deciding nothing", () => {
-		const generated = generate(corrupted([], CORRUPTIONS), simplestChooser)
+		const generated = generate(recorder(), corrupted([], CORRUPTIONS), simplestChooser)
 		deepStrictEqual([generated.value, generated.tape.length], [{ kind: "live", value: [] }, 0])
 	})
 })
@@ -641,7 +647,10 @@ describe("a pattern", () => {
 	)
 
 	it("shrinks to its shortest string, each class at its first character", () => {
-		strictEqual(generate(matching(regex("^[A-Z][a-z]{1,8}$")), simplestChooser).value, "Aa")
+		strictEqual(
+			generate(recorder(), matching(regex("^[A-Z][a-z]{1,8}$")), simplestChooser).value,
+			"Aa"
+		)
 	})
 
 	it.effect("refuses a repetition without a bound, and what generation cannot honour", () =>

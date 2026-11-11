@@ -21,6 +21,7 @@ import {
 	explore,
 	isWitness,
 	type Kept,
+	noDeadline,
 	type PropertyFalsified,
 	Run,
 	type Witnessed
@@ -39,13 +40,13 @@ import { floorSeed } from "#random.ts"
 import type { Replay, ReplayCase } from "#replay.ts"
 import { notesOnly } from "#sense.ts"
 import { boundedShrink, completeShrink } from "#shrink.ts"
-import { forcedChooser, generate, sample } from "#source.ts"
+import { forcedChooser, generate, recorder, sample } from "#source.ts"
 import { tokenOf } from "#tape.ts"
 import { searched } from "#vitest/searched.ts"
 
 /** A run with a given seed, replaying what it is asked to. */
 const runOf = (seed: number, replay: Option.Option<Replay>) =>
-	Run.of({ seed, source: "environment", replay, fuzz: Option.none() })
+	Run.of({ seed, source: "environment", replay, fuzz: Option.none(), deadline: noDeadline })
 
 const fullRun = runOf(7, Option.none())
 
@@ -898,7 +899,7 @@ const caseOf = (
 /** The kept case a failure's token prints, its sketch and its property's draws read back from the token's tape. */
 const keptOf = (replayed: ReplayCase): Kept<number, "rare"> => {
 	const values = Float64Array.from(replayed.values)
-	const generated = generate(innerValues, forcedChooser(values, values.length))
+	const generated = generate(recorder(), innerValues, forcedChooser(values, values.length))
 	return {
 		note: "the failure",
 		sketch: generated.value,

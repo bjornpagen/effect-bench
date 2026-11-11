@@ -21,7 +21,14 @@ import { between, floorSeed, rotatingSeed, wordsOf } from "#random.ts"
 import { type Drawn, type ReplayCase, replayOf, replayTokenOf } from "#replay.ts"
 import { notesOnly } from "#sense.ts"
 import { completeShrink, shrink } from "#shrink.ts"
-import { forcedChooser, type Generated, generate, randomChooser, sample } from "#source.ts"
+import {
+	forcedChooser,
+	generate,
+	type Generated,
+	randomChooser,
+	recorder,
+	sample
+} from "#source.ts"
 import { tokenOf, valuesFromToken } from "#tape.ts"
 import { searched } from "#vitest/searched.ts"
 
@@ -29,7 +36,7 @@ const SEEDS = Arr.range(0, 199)
 
 /** A case drawn fresh from one seed. */
 const fresh = <A>(generator: Gen<A>, seed: number): Generated<A> =>
-	generate(generator, randomChooser(wordsOf(seed)))
+	generate(recorder(), generator, randomChooser(wordsOf(seed)))
 
 /** A generator with every structure the engine records: a dependent bound, a collection and weighted branches. */
 const composite = (source: Parameters<Gen<unknown>>[0]) => {
@@ -51,11 +58,12 @@ const composite = (source: Parameters<Gen<unknown>>[0]) => {
 
 /** Every case of a bounded generator, in enumeration order. */
 const allCases = <A>(generator: Gen<A>): ReadonlyArray<A> => {
+	const recorded = recorder()
 	const cases: Array<A> = []
-	let step: Enumerated<A> = enumerated(generator, firstBranch)
+	let step: Enumerated<A> = enumerated(recorded, generator, firstBranch)
 	cases.push(step.generated.value)
 	while (Option.isSome(step.next)) {
-		step = enumerated(generator, step.next.value)
+		step = enumerated(recorded, generator, step.next.value)
 		cases.push(step.generated.value)
 	}
 	return cases
@@ -135,7 +143,11 @@ describe("a tape", () => {
 	it("replays its case exactly from its values", () => {
 		for (const seed of SEEDS) {
 			const original = fresh(composite, seed)
-			const replay = generate(composite, forcedChooser(original.tape.values, original.tape.length))
+			const replay = generate(
+				recorder(),
+				composite,
+				forcedChooser(original.tape.values, original.tape.length)
+			)
 			deepStrictEqual(replay, original)
 		}
 	})
@@ -242,7 +254,7 @@ describe("a tape", () => {
 	)
 
 	it("finishes a replay that runs out on simplest values, and says so", () => {
-		const replay = generate(composite, forcedChooser(new Float64Array(0), 0))
+		const replay = generate(recorder(), composite, forcedChooser(new Float64Array(0), 0))
 		strictEqual(replay.tape.status, "overrun")
 		deepStrictEqual(replay.value, { bound: 0, items: [], flag: false })
 	})
@@ -325,7 +337,7 @@ describe("shrinking", () => {
 				}
 			)
 			deepStrictEqual(shrunk.best.failure, [500])
-			strictEqual(shrunk.cut, false)
+			strictEqual(shrunk.ended, "minimal")
 		})
 	)
 
@@ -371,7 +383,7 @@ describe("shrinking", () => {
 			deepStrictEqual(shrunk, {
 				best: { tape: failing.tape, failure: failing.value },
 				candidates: 0,
-				cut: true
+				ended: "budget"
 			})
 		})
 	)
