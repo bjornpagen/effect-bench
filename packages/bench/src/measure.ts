@@ -22,9 +22,9 @@ const digestOf = (result: Json): string =>
 /** One round: the workload run once, between two readings of the clock. */
 const round = Effect.fnUntraced(function* (workload: Workload) {
 	const start = yield* Clock.currentTimeNanos
-	const result = yield* workload.run
+	const rendered = yield* workload.run
 	const end = yield* Clock.currentTimeNanos
-	return { nanos: Number(end - start), digest: digestOf(result) }
+	return { nanos: Number(end - start), digest: digestOf(rendered()) }
 })
 
 /** A run's report: the workload, the one digest all its rounds agreed on, and each timed round in nanoseconds. */

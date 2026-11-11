@@ -1,6 +1,15 @@
 import { XmlSchema } from "@aidenzepp/effect-xml"
 import type { Json } from "@effect-bench/json"
-import { Array as Arr, Effect, Option, Result, Schema, Stream, String as Str } from "effect"
+import {
+	Array as Arr,
+	Effect,
+	Formatter,
+	Option,
+	Result,
+	Schema,
+	Stream,
+	String as Str
+} from "effect"
 import type { Workload } from "#workload.ts"
 
 /** effect-xml: XML decoded into Effect Schema values and encoded back, on Effect's own XML tokenizer. */
@@ -129,7 +138,7 @@ export const WORKLOADS: ReadonlyArray<Workload> = [
 	...Arr.map(BANKS, ([records, text]): Workload => ({
 		name: `xml-decode-bank-${records}`,
 		source: SOURCE,
-		run: Effect.map(Effect.orDie(decodeBank(text)), (bank) => summaryOf(bank.refs))
+		run: Effect.map(Effect.orDie(decodeBank(text)), (bank) => () => summaryOf(bank.refs))
 	})),
 	{
 		name: "xml-roundtrip-bank-640",
@@ -138,13 +147,13 @@ export const WORKLOADS: ReadonlyArray<Workload> = [
 			const bank = yield* decodeBank(STREAMED)
 			const text = yield* encodeBank(bank)
 			const again = yield* decodeBank(text)
-			return { encoded: text.length, decoded: summaryOf(again.refs) }
+			return () => ({ encoded: text.length, decoded: summaryOf(again.refs) })
 		}).pipe(Effect.orDie)
 	},
 	{
 		name: "xml-tree-bank-640",
 		source: SOURCE,
-		run: Effect.map(Effect.orDie(decodeTree(STREAMED)), (tree) => tree.children.length)
+		run: Effect.map(Effect.orDie(decodeTree(STREAMED)), (tree) => () => Formatter.format(tree))
 	},
 	{
 		name: "xml-stream-bank-640",
@@ -153,21 +162,23 @@ export const WORKLOADS: ReadonlyArray<Workload> = [
 			Stream.pipeThroughChannel(XmlSchema.decodeSchemaString(ItemRef, BANK_PATH)()),
 			Stream.runCollect,
 			Effect.orDie,
-			Effect.map((refs) => summaryOf(refs))
+			Effect.map((refs) => () => summaryOf(refs))
 		)
 	},
 	{
 		name: "xml-refuse-bad-last-640",
 		source: SOURCE,
-		run: Effect.map(Effect.result(decodeBank(BAD_LAST)), (decoded) =>
-			Result.match(decoded, {
-				onSuccess: () => "accepted",
-				onFailure: (error) =>
-					Result.match(XmlSchema.findDecodeError(error.issue), {
-						onSuccess: (found) => `${found.reason._tag} ${found.path}`,
-						onFailure: () => "refused without an XML error"
-					})
-			})
+		run: Effect.map(
+			Effect.result(decodeBank(BAD_LAST)),
+			(decoded) => () =>
+				Result.match(decoded, {
+					onSuccess: () => "accepted",
+					onFailure: (error) =>
+						Result.match(XmlSchema.findDecodeError(error.issue), {
+							onSuccess: (found) => `${found.reason._tag} ${found.path}`,
+							onFailure: () => "refused without an XML error"
+						})
+				})
 		)
 	}
 ]

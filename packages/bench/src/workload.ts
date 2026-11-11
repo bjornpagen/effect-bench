@@ -11,5 +11,7 @@ export type Workload = Readonly<{
 	name: string
 	/** The package whose code runs, as a dependency names it. */
 	source: string
-	run: Effect.Effect<Json>
+	/** The work, timed; it ends in a rendering of its result as JSON, which runs after the clock stops, so the digest
+	 * covers the whole result and costs the timing nothing. */
+	run: Effect.Effect<() => Json>
 }>

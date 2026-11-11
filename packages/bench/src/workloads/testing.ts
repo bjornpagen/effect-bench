@@ -45,36 +45,35 @@ export const WORKLOADS: ReadonlyArray<Workload> = [
 	{
 		name: "testing-generate",
 		source: SOURCE,
-		run: Effect.sync(() =>
-			Arr.map(SEEDS, (seed) =>
-				Formatter.format(generate(composite, randomChooser(wordsOf(seed))).value)
-			)
-		)
+		run: Effect.sync(() => {
+			const cases = Arr.map(SEEDS, (seed) => generate(composite, randomChooser(wordsOf(seed))))
+			return () => Arr.map(cases, (each) => Formatter.format(each.value))
+		})
 	},
 	{
 		name: "testing-replay",
 		source: SOURCE,
-		run: Effect.sync(() =>
-			Arr.map(SEEDS, () =>
-				Formatter.format(
-					generate(composite, forcedChooser(sampled.tape.values, sampled.tape.length)).value
-				)
+		run: Effect.sync(() => {
+			const cases = Arr.map(SEEDS, () =>
+				generate(composite, forcedChooser(sampled.tape.values, sampled.tape.length))
 			)
-		)
+			return () => Arr.map(cases, (each) => Formatter.format(each.value))
+		})
 	},
 	{
 		name: "testing-count",
 		source: SOURCE,
 		run: Effect.sync(() => {
 			const counted = count(array(int(0, 9), { min: 0, max: 3 }), 2000)
-			return counted.kind === "within" ? counted.cases : -counted.limit
+			return () => Formatter.format(counted)
 		})
 	},
 	{
 		name: "testing-shrink",
 		source: SOURCE,
-		run: Effect.map(shrink(items, failingWide, reachesThreshold, completeShrink), (shrunk) =>
-			Formatter.format(shrunk.best.failure)
+		run: Effect.map(
+			shrink(items, failingWide, reachesThreshold, completeShrink),
+			(shrunk) => () => Formatter.format(shrunk.best.failure)
 		)
 	}
 ]
