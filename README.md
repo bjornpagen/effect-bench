@@ -31,6 +31,27 @@ Every workload is code that runs in a real codebase every day, reached as a publ
 
 Each run prints a digest of its whole result; an engine that computes something else is marked ≠ below.
 
+## The machine
+
+|           |                                                                                                                                                   |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Computer  | Apple Mac mini (M1, 2020)                                                                                                                         |
+| CPU       | Apple M1: 4 Firestorm performance cores at up to 2.99 GHz and 4 Icestorm efficiency cores at up to 2.06 GHz; 16 MiB of L2 across the two clusters |
+| Memory    | 8 GB unified (7.4 GiB usable), an 8 GB swap file                                                                                                  |
+| OS        | Fedora Linux Asahi Remix 45, kernel 7.2.12 (Asahi, 16 KiB pages), glibc 2.44, the `schedutil` frequency governor                                  |
+| Placement | every run pinned to the four Firestorm cores with `taskset -c 4-7`; the machine kept serving its usual workload throughout                        |
+
+How each engine was built:
+
+| Engine          | Build                                                                                                                                                                                                                                                                                                                                                |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Node (ours)     | Node 26.13.0 from source by clang 23 and lld: Fedora's hardening flags and more (array bounds checks, `_FORTIFY_SOURCE=3`, stack protector, signed returns, full RELRO), ThinLTO, Fedora's shared OpenSSL, zlib, Brotli, c-ares, libuv, SQLite and ICU, V8's heap sandbox with pointer compression in a shared cage, and V8's control-flow integrity |
+| Node (upstream) | the official `node-v26.13.0-linux-arm64` binary, its checksum verified against the release's signature by Node's release keys                                                                                                                                                                                                                        |
+| LLRT            | LLRT 0.10.0-beta (`5564705`) from source in LLRT's own release profile (fat LTO, one codegen unit, snmalloc) with Rust `nightly-2026-08-26`, for `aarch64-unknown-linux-gnu`; LLRT's default features, so no `Intl`                                                                                                                                  |
+| Bun             | Bun canary `1.4.4-canary.1+89452d2ac` (past the AOT compiler's merge), the official linux-aarch64 build, its checksum verified against Oven's signed `SHASUMS256.txt`                                                                                                                                                                                |
+| Bun AOT         | `bun compile`, on the bench machine, of each source's bundle (`-js-aot`) and of its TypeScript entry (`-ts-aot`)                                                                                                                                                                                                                                     |
+| Bundles         | esbuild 0.28.1, one unminified ES2024 module per source, platform neutral, `node:` imports left to each engine                                                                                                                                                                                                                                       |
+
 ## Results
 
 <!-- results:begin -->
