@@ -164,6 +164,9 @@ settings:
 
 catalogs:
   default:
+    '@aidenzepp/effect-xml':
+      specifier: 0.2.0
+      version: 0.2.0
     '@effect/platform-node':
       specifier: 4.1.2
       version: 4.1.2
@@ -253,6 +256,9 @@ importers:
 
   packages/bench:
     dependencies:
+      '@aidenzepp/effect-xml':
+        specifier: 'catalog:'
+        version: 0.2.0(effect@4.1.2)
       '@effect-bench/json':
         specifier: workspace:*
         version: link:../json
@@ -346,6 +352,11 @@ importers:
         version: 7.1.0-beta
 
 packages:
+
+  '@aidenzepp/effect-xml@0.2.0':
+    resolution: {integrity: sha512-CjXrCfzpa300xaiUr06FUkoAG1fb0PfINabK9QJBZfm0JG3BNa9JyKWB+mRkbO/poXkJNoflnMNcaqazqbZXPA==}
+    peerDependencies:
+      effect: ^4.1.2
 
   '@ark/util@0.56.8':
     resolution: {integrity: sha512-XLiQyGfpJcws1zCtp2Cva8s1oheCdFn1Rt6JSyC4NnkDrpwCJnlaiawuuOc1Z97vMH+jEzW5vyyf0xOju5wUQA==}
@@ -1732,6 +1743,10 @@ packages:
         optional: true
 
 snapshots:
+
+  '@aidenzepp/effect-xml@0.2.0(effect@4.1.2)':
+    dependencies:
+      effect: 4.1.2
 
   '@ark/util@0.56.8': {}
 

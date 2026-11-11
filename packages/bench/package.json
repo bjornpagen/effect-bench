@@ -14,6 +14,7 @@
 		"bundle": "node scripts/bundle.ts"
 	},
 	"dependencies": {
+		"@aidenzepp/effect-xml": "catalog:",
 		"@effect-bench/json": "workspace:*",
 		"@effect-bench/testing": "workspace:*",
 		"effect": "catalog:"
