@@ -17,8 +17,5 @@
 		"newlinesBetween": false,
 		"partitionByNewline": true
 	},
-	"sortTailwindcss": {
-		"stylesheet": "./packages/nextjs-app/src/styles/globals.css"
-	},
-	"ignorePatterns": ["packages/nextjs-app/src/ui/**", "packages/devtools/src/*/fixtures/**"]
+	"ignorePatterns": ["packages/devtools/src/*/fixtures/**", "harvest/**"]
 }

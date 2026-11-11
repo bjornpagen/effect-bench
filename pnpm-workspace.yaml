@@ -1,5 +1,6 @@
 packages:
   - packages/*
+  - harvest/*
 nodeLinker: hoisted
 verifyDepsBeforeRun: error
 # A dependency is written at the exact version installed, and an engine a package refuses fails the install.

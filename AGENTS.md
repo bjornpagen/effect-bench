@@ -30,9 +30,12 @@ or worked around.
   deleting something could not do the job.
 - **Hard cutovers.** A change replaces the old way everywhere in one go: no shims, aliases or readers of an
   old form.
-- **Real code, never copies.** A workload calls a library or an application through its package, a pnpm git
-  dependency pinned to one commit in the catalog. Nothing is vendored, ported or rewritten to suit an engine: an
-  engine that cannot run the code as written is a finding.
+- **Real code, harvested.** A workload runs the code a real codebase runs every day: a published library through its
+  npm package, and anything else copied into `harvest/<name>/` at a recorded commit, one workspace package per source,
+  cut down only where a benchmark must (I/O dropped, inputs built in memory). Harvested code keeps its own style:
+  the root tsconfig turns every Effect diagnostic off under `harvest/`, oxfmt and fallow's dead-code report skip it,
+  and it is still type-checked. Nothing is rewritten to suit an engine: an engine that cannot run the code as written
+  is a finding.
 - **One bundle, every engine.** A workload's hot path touches no Node built-in, file, network, clock or
   randomness it was not handed: inputs are built in memory from seeds, and the same bundle runs unchanged on every
   engine.
@@ -52,6 +55,10 @@ its raw TypeScript (no build step):
   tsconfig base and its Effect-free variant, the oxlint plugin and superlint, each with its fixtures, as the bin
   `superlint`.
 - `packages/testing`: the choice-stream testing library every suite runs on, with `pnpm fuzz` and `pnpm mutate`.
+- `packages/bench`: the harness and the workloads. Each `src/workloads/<module>.ts` exports a `WORKLOADS` roster,
+  `pnpm bundle` makes each `<module>.entry.ts` one ESM file in `dist/`, and a run is
+  `<engine> dist/<module>.mjs <workload> <warmup> <timed>`, printing one JSON line.
+- `harvest/<name>`: code copied from other codebases at a recorded commit (its `package.json` says where from).
 - The root holds `oxlint.config.ts` (this repository's own lists for the preset), the superlint options in
   `package.json`, `turbo.json`, and the `tsconfig.json` every package extends: it extends the dev tools' base and
   is the repository's one Effect plugin block.

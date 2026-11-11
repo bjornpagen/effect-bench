@@ -17,6 +17,7 @@
 		"@aidenzepp/effect-xml": "catalog:",
 		"@effect-bench/json": "workspace:*",
 		"@effect-bench/testing": "workspace:*",
+		"@harvest/grizzle-engine": "workspace:*",
 		"@qti-pie/plate": "catalog:",
 		"effect": "catalog:"
 	},

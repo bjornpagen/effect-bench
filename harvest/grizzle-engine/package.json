@@ -1,0 +1,24 @@
+{
+	"name": "@harvest/grizzle-engine",
+	"private": true,
+	"description": "grizzle's compiler, harvested from github.com/bjornpagen/grizzle at e9227afd2fa183bba52d74829b38aa52e973cef0 (packages/engine/src, and test/support/fixtures/api as src/fixtures/api): the schema owner, the codebook, the installation, the workload compiler, the query templates and the migration drafter, with grizzle's own fixture schemas.",
+	"type": "module",
+	"sideEffects": false,
+	"imports": {
+		"#compiler/*": "./src/*"
+	},
+	"exports": {
+		".": "./src/index.ts",
+		"./*": "./src/*"
+	},
+	"scripts": {
+		"typecheck": "effect-tsgo tsrs"
+	},
+	"dependencies": {
+		"arkregex": "catalog:",
+		"effect": "catalog:"
+	},
+	"devDependencies": {
+		"typescript": "catalog:"
+	}
+}

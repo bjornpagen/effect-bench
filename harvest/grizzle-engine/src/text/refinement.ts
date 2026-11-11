@@ -1,0 +1,342 @@
+import { type CompileError, unsupported } from "#compiler/core/errors.ts"
+import { regexDfaMaxStates, regexDfaMaxWork } from "#compiler/core/limits.ts"
+import { childLoc, SourceLoc } from "#compiler/core/loc.ts"
+import { isNonEmpty, mapNonEmpty } from "#compiler/core/nonempty.ts"
+import * as Result from "#compiler/core/result.ts"
+import { utf8Length } from "#compiler/core/sha256.ts"
+import { codePoints } from "#compiler/core/text.ts"
+import {
+	languageKey,
+	languageWithin,
+	type PatternCheck,
+	type PatternLanguage,
+	type RegexCheck,
+	type RegexKey,
+	type TextBounds,
+	type TextInfo,
+	textInfoOf
+} from "#compiler/ir/scalar.ts"
+import { admitPattern } from "#compiler/scalar/regex/admit.ts"
+import { toAre } from "#compiler/scalar/regex/are.ts"
+import { utf8Width } from "#compiler/scalar/regex/charset.ts"
+import {
+	type CanonicalDfa,
+	type DfaLimits,
+	dfaKey,
+	isUniversal,
+	longest,
+	membersWithin,
+	minimalDfa
+} from "#compiler/scalar/regex/dfa.ts"
+import { canonicalText, type LiveNode, type RegexNode } from "#compiler/scalar/regex/ir.ts"
+import type { Nfa } from "#compiler/scalar/regex/nfa.ts"
+import type { RegexFlags } from "#compiler/scalar/regex/parse.ts"
+import type { DescriptorLanguage, TextLookup } from "#compiler/scalar/registry.ts"
+import type { CreateDomain, Expr } from "#compiler/sql/ast.ts"
+import { and, binary, call, cUtf8Collation, le, lit, types } from "#compiler/sql/build.ts"
+import { printExpr } from "#compiler/sql/print.ts"
+import { structuralBounds } from "#compiler/text/bounds.ts"
+
+/**
+ * The host's bounds on a pattern's subset construction (core/limits.ts regexDfaMaxStates, regexDfaMaxWork): past
+ * either, the analysis knows the language by its structure alone.
+ */
+const dfaLimits: DfaLimits = Object.freeze({
+	maxStates: regexDfaMaxStates.value,
+	maxWork: regexDfaMaxWork.value
+})
+
+/**
+ * How PostgreSQL enforces the refinement: no check for a tautology over admitted text, else its language's enforcement
+ * (ir/scalar.ts PatternCheck), with the bounds it proves on every member.
+ */
+type TextCheck = { readonly kind: "tautology" } | PatternCheck
+
+export interface TextRefinement {
+	readonly source: string
+	readonly flags: RegexFlags
+	/** The normalized IR; the flags are folded into it. */
+	readonly ir: RegexNode
+	/** The ARE translation of the IR, whatever the check (the differential tests run it for every pattern). */
+	readonly are: string
+	readonly check: TextCheck
+	/**
+	 * The canonical pattern key: the minimal DFA's canonical text ("dfa:...") when the bounded construction succeeds,
+	 * otherwise the normalized IR ("ir:..."). Equal keys recognize the same values; the converse holds for two "dfa:"
+	 * keys.
+	 */
+	readonly key: string
+	/** SHA-256 of the key, the language's identity (ir/scalar.ts languageKey). */
+	readonly digest: RegexKey
+}
+
+/** The bounds a refinement proves on every member, where it proves them. */
+export const refinementBounds = (refinement: TextRefinement): TextBounds | undefined =>
+	refinement.check.kind === "tautology" ? undefined : refinement.check.bounds
+
+const boundsOfMembers = (members: ReadonlyArray<string>): TextBounds => {
+	let length = 0
+	let bytes = 0
+	for (const m of members) {
+		const cps = codePoints(m)
+		length = Math.max(length, cps.length)
+		bytes = Math.max(
+			bytes,
+			cps.reduce((n, c) => n + utf8Width(c), 0)
+		)
+	}
+	return { length, bytes }
+}
+
+/**
+ * A non-empty language as the analysis knows it: by its canonical automaton when the DFA bounds reach one, and
+ * otherwise by its normalized IR alone.
+ */
+type Known =
+	| { readonly kind: "automaton"; readonly dfa: CanonicalDfa }
+	| { readonly kind: "structure" }
+
+/** A nontrivial check with the UTF-8 bytes its predicate prints in (predicateBytes). */
+interface Measured {
+	readonly check: PatternCheck
+	readonly bytes: number
+}
+
+const measured = (check: PatternCheck): Measured => ({ check, bytes: predicateBytes(check) })
+
+/**
+ * The enforcement of a finite language whose predicate prints in fewer bytes, the IN list where the two print alike.
+ * Both recognize exactly the language, so their printed size is all that tells them apart.
+ */
+const shorter = (inList: Measured, regex: Measured): Measured =>
+	inList.bytes <= regex.bytes ? inList : regex
+
+/**
+ * The enforcement of a language. From its automaton: a tautology, or whichever of two equivalent forms prints shorter
+ * (shorter), its regex with the automaton's bounds or, for a finite language, `VALUE IN (...)` of its members. From its
+ * structure alone: a regex with the IR's structural bounds.
+ *
+ * The regex is measured first, and the members are listed only while they could still print within its bytes: each
+ * member's literal prints in at least memberBytes and the member's own UTF-8 bytes, so the IN list of members that
+ * weigh more (membersWithin) is longer than the regex, and a large language with a short pattern is never listed.
+ */
+const choose = (ir: RegexNode, known: Known, are: string): TextCheck => {
+	switch (known.kind) {
+		case "automaton": {
+			const { dfa } = known
+			if (isUniversal(dfa)) {
+				return { kind: "tautology" }
+			}
+			const regex = measured({ kind: "regex", pattern: are, bounds: longest(dfa) })
+			const members = membersWithin(dfa, memberBytes, regex.bytes)
+			if (members === undefined || !isNonEmpty(members)) {
+				return regex.check
+			}
+			const inList = measured({ kind: "finite", members, bounds: boundsOfMembers(members) })
+			return shorter(inList, regex).check
+		}
+		case "structure":
+			return { kind: "regex", pattern: are, bounds: structuralBounds(ir) }
+	}
+}
+
+/**
+ * The canonical pattern key of a language: its minimal DFA's canonical text, or its normalized IR above the DFA bound.
+ */
+const keyOf = (ir: RegexNode, known: Known): string => {
+	switch (known.kind) {
+		case "automaton":
+			return `dfa:${dfaKey(known.dfa)}`
+		case "structure":
+			return `ir:${canonicalText(ir)}`
+	}
+}
+
+/**
+ * A pattern's language: empty (no admitted text value matches it), or not, as the analysis knows it.
+ * A nonempty one holds its IR as a node of a language with a member.
+ */
+type Language =
+	| { readonly kind: "empty" }
+	| { readonly kind: "nonEmpty"; readonly ir: LiveNode; readonly known: Known }
+
+/**
+ * The language of a pattern's IR from its NFA: what analyzeText classifies an admitted pattern by. It is empty exactly
+ * when the IR is never, which the IR's constructors make it exactly when no admitted text value matches it (ir.ts), so a
+ * live IR's language is non-empty whether or not the DFA bounds reach its automaton.
+ */
+export const languageOf = (ir: RegexNode, nfa: Nfa): Language => {
+	if (ir.kind === "never") {
+		return { kind: "empty" }
+	}
+	const outcome = minimalDfa(nfa, dfaLimits)
+	switch (outcome.kind) {
+		case "bounded":
+			return { kind: "nonEmpty", ir, known: { kind: "structure" } }
+		case "minimal":
+			return { kind: "nonEmpty", ir, known: { kind: "automaton", dfa: outcome.dfa } }
+	}
+}
+
+/**
+ * Text refinements: a declared pattern, checked, analyzed and lowered.
+ *
+ * `analyzeText` is what schema compilation calls for every `str.regex` descriptor. It admits the pattern as every
+ * pattern grizzle hands PostgreSQL is admitted (scalar/regex/admit.ts admitPattern): its grammar, with source-located
+ * diagnostics, and PostgreSQL's regex compile space, a pattern past one of its measures refused as ResourceBound. It
+ * refuses, as UnsupportedOperation, exactly the patterns no admitted text value matches, whose IR is never (languageOf),
+ * however large. Then it proves what it can within the host's bounds and chooses the PostgreSQL enforcement:
+ *
+ * - a tautology over admitted text erases: no CHECK, no domain, the column is plain text;
+ * - a proved finite language becomes `VALUE IN (...)`, which recognizes exactly the same values, where that predicate
+ *   prints in no more bytes than the regex's (choose);
+ * - anything else is `VALUE ~ '<ARE>'` with the translated pattern (scalar/regex/are.ts).
+ *
+ * It also derives the canonical pattern key that domain sharing uses (core/identity.ts textDomain), and the proved length
+ * and byte bounds that the key representability check consumes. Nothing here validates application data.
+ *
+ * Checks, analyzes and lowers a declared pattern, whose source and flags the description's boundary admitted
+ * (field.ts admitRegex, the description decoder). `loc` is the descriptor's source location; diagnostics point one
+ * level deeper, at the pattern offset of the construct (`... .pattern[3]`). The analysis reads only the source and the
+ * flags; `loc` places a refusal alone.
+ */
+export const analyzeText = (
+	source: string,
+	flags: RegexFlags,
+	loc: SourceLoc
+): Result.Result<TextRefinement, CompileError> => {
+	return analyze(source, flags, loc)
+}
+
+const analyze = (
+	source: string,
+	flags: RegexFlags,
+	loc: SourceLoc
+): Result.Result<TextRefinement, CompileError> => {
+	const admitted = admitPattern(source, flags, loc)
+	if (!admitted.ok) {
+		return admitted
+	}
+	const { ir, nfa } = admitted.value
+	const language = languageOf(ir, nfa)
+	if (language.kind === "empty") {
+		return Result.err(
+			unsupported(
+				childLoc(loc, "pattern"),
+				`/${source}/${flags} matches no admitted text value, so no fact could ever hold the field`
+			)
+		)
+	}
+	const are = toAre(language.ir)
+	const check = choose(ir, language.known, are)
+	const key = keyOf(ir, language.known)
+	return Result.ok(Object.freeze({ source, flags, ir, are, check, key, digest: languageKey(key) }))
+}
+
+/**
+ * What a text descriptor carries of its analyzed pattern (ir/scalar.ts TextLanguage): a proved tautology admits every
+ * value; any other pattern carries its language's key and its enforcement, with the bounds that proves.
+ */
+const textLanguage = (refinement: TextRefinement): PatternLanguage => {
+	const check = refinement.check
+	return check.kind === "tautology"
+		? Object.freeze({ kind: "every" })
+		: Object.freeze({ kind: "refined", key: refinement.digest, check })
+}
+
+/**
+ * The text metadata of the refinement's ScalarType (ir/scalar.ts textInfoOf): a proved tautology is the canonical
+ * wildcard, which is unbounded; any other pattern keeps its source and flags as the declaration wrote them, with its
+ * language's key, its enforcement and its proved bounds.
+ */
+export const textInfo = (refinement: TextRefinement): TextInfo =>
+	textInfoOf(refinement.source, refinement.flags, textLanguage(refinement))
+
+/**
+ * The analyzed language of a pattern, a refusal located at the pattern: what a str.regex descriptor is admitted with
+ * (text/field.ts), and what a lowering types a pattern it computes by (scalar/registry.ts TextLookup). Each call
+ * analyzes: a descriptor carries its language from its admission on, so no later pass calls it for a declared pattern.
+ */
+export const textLookup: TextLookup = (source, flags) =>
+	Result.map(analyzeText(source, flags, SourceLoc(`/${source}/${flags}`, [])), textLanguage)
+
+/**
+ * The analyzed language of a pattern cut to `octets` UTF-8 bytes (languageWithin), a refusal located at the pattern:
+ * what a str.bytes descriptor is admitted with.
+ */
+export const textLookupWithin =
+	(octets: number): DescriptorLanguage =>
+	(source, flags) =>
+		Result.map(textLookup(source, flags), (pattern) => languageWithin(pattern, octets))
+
+/** A domain CHECK's VALUE. */
+export const domainValue: Expr = Object.freeze({ kind: "domainValue" })
+
+/** A member of `VALUE IN (...)`: the text literal its list holds. */
+const memberLiteral = (member: string): Expr => lit.text(member, types.text)
+
+/**
+ * The fewest UTF-8 bytes a member adds to `VALUE IN (...)`, the empty text's literal: any member's literal is that one
+ * with the member's UTF-8 bytes inside its quotes, and more where a quote is doubled.
+ */
+const memberBytes = utf8Length(printExpr(memberLiteral("")))
+
+/** A pattern's membership predicate over `value`: `value IN (...)` of its members, or `value ~ '<ARE>'`. */
+const patternMembership = (check: PatternCheck, value: Expr): Expr => {
+	switch (check.kind) {
+		case "finite":
+			return {
+				kind: "inList",
+				expr: value,
+				list: mapNonEmpty(check.members, memberLiteral),
+				not: false
+			}
+		case "regex":
+			return binary("~", value, lit.text(check.pattern, types.text))
+	}
+}
+
+/** A byte bound's test over `value`: `octet_length(value) <= octets`. */
+const octetsTest = (octets: number, value: Expr): Expr =>
+	le(call("octet_length", [value]), lit.int(octets, types.integer))
+
+/**
+ * The membership predicate over `value` (domainValue inside a domain CHECK), without the IS TRUE wrapper, which the
+ * printer adds to every CHECK: a pattern's, or a byte bound's test before the pattern's, so PostgreSQL's regex engine
+ * never reads a value past the bound.
+ */
+export const membership = (check: RegexCheck, value: Expr): Expr => {
+	switch (check.kind) {
+		case "finite":
+		case "regex":
+			return patternMembership(check, value)
+		case "octets":
+			return check.check === undefined
+				? octetsTest(check.octets, value)
+				: and([octetsTest(check.octets, value), patternMembership(check.check, value)])
+	}
+}
+
+/**
+ * The UTF-8 bytes a check's predicate over VALUE prints in, what choose compares two equivalent checks by. Every CHECK
+ * prints its predicate in one place whatever its form, alone inside `CHECK ((...) IS TRUE)` or as a term of a
+ * contract's conjunction, so the predicates' bytes order the statements as the statements' own bytes do.
+ */
+const predicateBytes = (check: PatternCheck): number =>
+	utf8Length(printExpr(patternMembership(check, domainValue)))
+
+/**
+ * The compiler-owned structural domain of a nontrivial refinement:
+ * `CREATE DOMAIN <schema>.__text_<slug> AS text COLLATE pg_catalog.pg_c_utf8 CONSTRAINT __text_<slug>__check
+ * CHECK ((...) IS TRUE)`, with no NOT NULL.
+ */
+export const textDomainDdl = (
+	check: RegexCheck,
+	target: { readonly schema: string; readonly name: string; readonly constraint: string }
+): CreateDomain => ({
+	kind: "createDomain",
+	name: { schema: target.schema, name: target.name },
+	base: types.text,
+	collation: cUtf8Collation,
+	constraints: [{ name: target.constraint, predicate: membership(check, domainValue) }]
+})

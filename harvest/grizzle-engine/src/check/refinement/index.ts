@@ -1,0 +1,167 @@
+import type { RefinementPlugin } from "#compiler/check/context.ts"
+import type { SchemaReading } from "#compiler/check/schema.ts"
+import { canonicalTextOf } from "#compiler/core/canonical.ts"
+import type { TypedLiteral } from "#compiler/ir/expr.ts"
+import {
+	baseOf,
+	contractOf,
+	numericBoundOf,
+	numericTypmodOf,
+	type ScalarType,
+	sameScalarType
+} from "#compiler/ir/scalar.ts"
+
+import {
+	commonType,
+	compatible,
+	exactNumericBound,
+	numericHull,
+	sameRegex,
+	wildcardText
+} from "#compiler/scalar/compute/types.ts"
+import { numericValue } from "#compiler/scalar/registry.ts"
+
+/**
+ * Whether every value of type `a` is proved to be a value of type `b`: one carrier and nominal identity, the contract
+ * chain included (compatible: within one checked schema a contract name names one domain), one numeric typmod, a
+ * computed numeric's bound holding `a`'s values (types.ts exactNumericBound), and, for text, `b`'s pattern the
+ * canonical wildcard or proved equal to `a`'s. The serial generation flag is not a value domain and does not enter.
+ * Containment between two different languages is never claimed.
+ */
+export const guarantees = (a: ScalarType, b: ScalarType): boolean => {
+	if (!compatible(a, b)) {
+		return false
+	}
+	const ba = baseOf(a)
+	const bb = baseOf(b)
+	if (ba.carrier === "numeric") {
+		const tb = numericTypmodOf(bb)
+		if (
+			tb !== undefined &&
+			(ba.typmod?.precision !== tb.precision || ba.typmod.scale !== tb.scale)
+		) {
+			return false
+		}
+		const boundB = numericBoundOf(bb)
+		const boundA = exactNumericBound(ba)
+		if (
+			boundB !== undefined &&
+			(boundA === undefined || boundA.digits > boundB.digits || boundA.scale > boundB.scale)
+		) {
+			return false
+		}
+	}
+	if (ba.carrier === "text" && bb.carrier === "text") {
+		return bb.text.regex === "wildcard" || sameRegex(ba.text.regex, bb.text.regex)
+	}
+	return true
+}
+
+/** Whether two types make the same guarantees in both directions. */
+const sameGuarantees = (a: ScalarType, b: ScalarType): boolean =>
+	guarantees(a, b) && guarantees(b, a)
+
+/**
+ * The common type of two compatible arm types.
+ *
+ * One contract identity, which compatible arms share: the contract's domain guarantees both arms' values.
+ */
+const combine = (x: ScalarType, y: ScalarType): ScalarType => {
+	if (sameScalarType(x, y)) {
+		return x
+	}
+	if (contractOf(x) !== undefined) {
+		return x
+	}
+	if (x.carrier === "text" && y.carrier === "text") {
+		return sameRegex(x.text.regex, y.text.regex) ? x : wildcardText
+	}
+	const nx = exactNumericBound(x)
+	const ny = exactNumericBound(y)
+	if (x.carrier === "numeric" && nx !== undefined && ny !== undefined) {
+		return sameGuarantees(x, y) ? x : numericValue(numericHull(nx, ny))
+	}
+	return commonType(x, y)
+}
+
+/**
+ * Refinement propagation and the refinement validation sites.
+ *
+ * Every text value in the checked IR carries a specific pattern or the canonical wildcard, and every contract value its
+ * contract. This module owns what the checker cannot decide locally about those guarantees:
+ *
+ * - Propagation. An unchanged projection, match, import, DISTINCT, and text min and max keep their input's
+ *   guarantees, because the checker gives them the input column's own type. A computed value carries the Compute
+ *   catalogue's result type, a plain native type, a computed numeric with its bound or the canonical wildcard
+ *   (scalar/compute). A column that several arms
+ *   of one union deliver keeps only the guarantees common to every arm (`refinement.common` below): the arms' type when
+ *   they agree, the arms' pattern when the arms' patterns are proved to recognize one language (the canonical
+ *   pattern key of text/refinement.ts, the proof domain sharing uses), and otherwise the canonical wildcard for text
+ *   and, for numerics, the computed numeric whose bound holds both arms' values (types.ts numericHull): PostgreSQL's
+ *   own common-type rule, text and numeric of no typmod, with what grizzle proves of it. No other regex containment,
+ *   disjointness, or inferred-type assignability is claimed.
+ * - Validation sites. A value written into a refined column is validated by the column's domain in the apply
+ *   transaction; its refusal names the domain's constraint; the adapter classifies it by the domain PostgreSQL reports
+ *   as the violation's data type. A refined output is cast to its domain in the delivered output list
+ *   (lower/shapes/refined). A comparison parameter is bound as the base and is never validated. Closed payloads with
+ *   nontrivial refinements are validated by PostgreSQL at installation: `refinedConstants` lists them, and
+ *   lower/shapes/refined builds the statement that casts each to its domain and the installer extension that runs it
+ *   in the Publish phase. No path validates a query's own refined literals, so the delivery relies on no base-typed
+ *   constant's membership and casts it where it is delivered.
+ *
+ * The host never validates application data: the canonical pattern keys come from the text package's bounded automaton
+ * construction over declarations, never from a matcher run over values.
+ */
+export const refinement: RefinementPlugin = {
+	common: (types) => {
+		const [first, ...rest] = types
+		return rest.reduce((a, b) => combine(a, b), first)
+	}
+}
+
+/**
+ * Whether a value of `t` needs PostgreSQL's validation where it enters a refined position: a contract whose domain, or
+ * whose base's domain, carries a CHECK, or text with a specific pattern. A brand-only contract over an unrefined base
+ * has no constraint to evaluate.
+ */
+export const hasConstraint = (t: ScalarType): boolean => {
+	const contract = contractOf(t)
+	if (contract !== undefined) {
+		return contract.predicate !== undefined || hasConstraint(contract.base)
+	}
+	return t.carrier === "text" && t.text.regex !== "wildcard"
+}
+
+/**
+ * A refined constant the compiler relies on: a closed relation's payload value of a type whose domain carries a CHECK.
+ * PostgreSQL validates it at installation.
+ */
+export interface RefinedConstant {
+	readonly literal: TypedLiteral
+	readonly type: ScalarType
+	/** Where the constant is declared, for diagnostics: `closed Tier.label at (pro)`, its row named by its key. */
+	readonly site: string
+}
+
+/** A key literal as a refinement site names its row: a handle by itself, any other by its canonical text. */
+const keyText = (literal: TypedLiteral): string =>
+	literal.kind === "handle" ? literal.handle : canonicalTextOf(literal)
+
+/**
+ * The closed relations' payload values whose fields carry a nontrivial refinement, in relation, row and heading order.
+ * A closed relation's heading is its key fields, then its payload, so a row's first `primaryFields.length` literals
+ * are its key, which names the row, and the rest its payload; a roster's one field is its key.
+ */
+export const refinedConstants = (schema: SchemaReading): ReadonlyArray<RefinedConstant> =>
+	[...schema.closed.values()].flatMap((info) => {
+		const keyed = info.relation.primaryFields.length
+		return info.rows.flatMap((row) => {
+			const site = `at (${row.slice(0, keyed).map(keyText).join(", ")})`
+			return info.heading.flatMap((column, i): ReadonlyArray<RefinedConstant> => {
+				const literal = row[i]
+				return i < keyed || literal === undefined || !hasConstraint(column.type)
+					? []
+					: [{ literal, type: column.type, site: `closed ${info.name}.${column.name} ${site}` }]
+			})
+		})
+	})

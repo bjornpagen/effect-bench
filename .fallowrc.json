@@ -7,7 +7,7 @@
 		"packages/testing/src/witness.fixtures.ts",
 		"packages/bench/src/workloads/*.entry.ts"
 	],
-	"ignorePatterns": ["packages/devtools/src/*/fixtures/**"],
+	"ignorePatterns": ["harvest/**", "packages/devtools/src/*/fixtures/**"],
 	"ignoreDependencies": [],
 	"rules": {
 		"require-suppression-reason": "error"
@@ -29,6 +29,10 @@
 			{
 				"name": "devtools",
 				"patterns": ["packages/devtools/**"]
+			},
+			{
+				"name": "harvest",
+				"patterns": ["harvest/**"]
 			},
 			{
 				"name": "bench",
@@ -62,7 +66,11 @@
 			},
 			{
 				"from": "bench",
-				"allow": ["json", "testing"]
+				"allow": ["harvest", "json", "testing"]
+			},
+			{
+				"from": "harvest",
+				"allow": ["harvest"]
 			}
 		],
 		"coverage": {
