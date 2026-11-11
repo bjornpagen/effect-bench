@@ -134,7 +134,7 @@ const STREAMED_CHUNKS = chunksOf(STREAMED, 4096)
 const BAD_LAST = bankText(640, true)
 
 /** Typed decodes at three sizes, an encode round trip, the untyped tree, the record stream and the refusal path. */
-export const WORKLOADS: ReadonlyArray<Workload> = [
+export const EFFECT_XML_WORKLOADS: ReadonlyArray<Workload> = [
 	...Arr.map(BANKS, ([records, text]): Workload => ({
 		name: `xml-decode-bank-${records}`,
 		source: SOURCE,

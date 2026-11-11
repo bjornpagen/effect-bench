@@ -41,7 +41,7 @@ const reachesThreshold = (values: ReadonlyArray<number>) =>
 	Effect.succeed(Arr.some(values, (value) => value >= 500))
 
 /** The engine's own hot paths: drawing cases, replaying tapes, enumerating a space and shrinking a failure. */
-export const WORKLOADS: ReadonlyArray<Workload> = [
+export const TESTING_WORKLOADS: ReadonlyArray<Workload> = [
 	{
 		name: "testing-generate",
 		source: SOURCE,

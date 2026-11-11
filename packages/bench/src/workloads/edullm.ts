@@ -159,7 +159,7 @@ const BRIEFS: ReadonlyArray<unknown> = Arr.flatten(
 const decodeBrief = Schema.decodeUnknownEffect(BriefSchema)
 
 /** edullm's own compute: its PostgreSQL COPY-binary frame scanner, its BSON decoder and its passage briefs. */
-export const WORKLOADS: ReadonlyArray<Workload> = [
+export const EDULLM_WORKLOADS: ReadonlyArray<Workload> = [
 	{
 		name: "edullm-copy-binary-10000",
 		source: "@edullm/bronze-repository",

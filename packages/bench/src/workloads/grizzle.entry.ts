@@ -1,4 +1,4 @@
 import { main } from "#main.ts"
-import { WORKLOADS } from "#workloads/grizzle.ts"
+import { GRIZZLE_WORKLOADS } from "#workloads/grizzle.ts"
 
-main(WORKLOADS, globalThis.process.argv.slice(2))
+main(GRIZZLE_WORKLOADS, globalThis.process.argv.slice(2))

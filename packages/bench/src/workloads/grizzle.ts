@@ -78,11 +78,14 @@ const SCHEMAS: ReadonlyArray<readonly [string, unknown]> = [
 ]
 
 /** Each fixture schema drafted into its first migration: the SQL files, the snapshot and the meta. */
-export const WORKLOADS: ReadonlyArray<Workload> = Arr.map(SCHEMAS, ([name, schema]): Workload => ({
-	name: `grizzle-draft-${name}`,
-	source: SOURCE,
-	run: Effect.sync(() => {
-		const drafted = draftOf(schema)
-		return () => Formatter.format(drafted)
+export const GRIZZLE_WORKLOADS: ReadonlyArray<Workload> = Arr.map(
+	SCHEMAS,
+	([name, schema]): Workload => ({
+		name: `grizzle-draft-${name}`,
+		source: SOURCE,
+		run: Effect.sync(() => {
+			const drafted = draftOf(schema)
+			return () => Formatter.format(drafted)
+		})
 	})
-}))
+)

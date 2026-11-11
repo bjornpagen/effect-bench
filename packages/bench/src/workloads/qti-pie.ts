@@ -61,7 +61,7 @@ const CHOICES: ReadonlyArray<number> = [4, 64, 512]
 const REFS: ReadonlyArray<number> = [100, 1000]
 
 /** Opening items and tests: reading the XML, checking it against QTI's tables and building the model. */
-export const WORKLOADS: ReadonlyArray<Workload> = [
+export const QTI_PIE_WORKLOADS: ReadonlyArray<Workload> = [
 	...Arr.map(CHOICES, (choices): Workload => ({
 		name: `qti-open-item-${choices}`,
 		source: SOURCE,

@@ -1,4 +1,4 @@
 import { main } from "#main.ts"
-import { WORKLOADS } from "#workloads/superstarter.ts"
+import { SUPERSTARTER_WORKLOADS } from "#workloads/superstarter.ts"
 
-main(WORKLOADS, globalThis.process.argv.slice(2))
+main(SUPERSTARTER_WORKLOADS, globalThis.process.argv.slice(2))

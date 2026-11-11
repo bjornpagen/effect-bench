@@ -142,7 +142,7 @@ const generated = (row: (typeof ROWS)[number]): Workload["run"] => {
 }
 
 /** Each feature row of the generator's corpus, generated end to end at every OpenAPI line it has. */
-export const WORKLOADS: ReadonlyArray<Workload> = Arr.map(ROWS, (row): Workload => ({
+export const OPENAPI_WORKLOADS: ReadonlyArray<Workload> = Arr.map(ROWS, (row): Workload => ({
 	name: `openapi-rows-${row.group}`,
 	source: SOURCE,
 	run: generated(row)

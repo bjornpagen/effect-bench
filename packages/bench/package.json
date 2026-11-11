@@ -11,7 +11,9 @@
 		"typecheck": "effect-tsgo tsrs",
 		"superlint": "superlint",
 		"oxlint": "oxlint",
-		"bundle": "node scripts/bundle.ts"
+		"bundle": "node scripts/bundle.ts",
+		"matrix": "node scripts/matrix.ts",
+		"report": "node scripts/report.ts"
 	},
 	"dependencies": {
 		"@aidenzepp/effect-xml": "catalog:",

@@ -113,6 +113,6 @@ const traffic = Effect.gen(function* () {
 })
 
 /** superstarter's server actions over their real wire contracts, in memory. */
-export const WORKLOADS: ReadonlyArray<Workload> = [
+export const SUPERSTARTER_WORKLOADS: ReadonlyArray<Workload> = [
 	{ name: "superstarter-todo-actions-200", source: "@superstarter/todo-protocol", run: traffic }
 ]

@@ -1,4 +1,4 @@
 import { main } from "#main.ts"
-import { WORKLOADS } from "#workloads/openapi-cli-generator.ts"
+import { OPENAPI_WORKLOADS } from "#workloads/openapi-cli-generator.ts"
 
-main(WORKLOADS, globalThis.process.argv.slice(2))
+main(OPENAPI_WORKLOADS, globalThis.process.argv.slice(2))
