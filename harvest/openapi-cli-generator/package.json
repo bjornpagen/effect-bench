@@ -1,0 +1,21 @@
+{
+	"name": "@harvest/openapi-cli-generator",
+	"private": true,
+	"description": "The OpenAPI-to-Effect-CLI generator, harvested from github.com/aidenzepp/effect-openapi-cli-generator at ac03fdb5ccae93017aa77b475e3b4b593b0d9748: its pure stages (load, resolve, check, normalize, Effect's OpenAPI-to-Schema import, name planning, domain, API and CLI emission) and their runtime helpers, with its committed corpus fixtures and author configs. Cut: the file writer (but its sha256), the hyperjump validator, the scaffold emitter and the entry points.",
+	"type": "module",
+	"sideEffects": false,
+	"exports": {
+		"./*": "./src/*",
+		"./fixtures/*": "./fixtures/*"
+	},
+	"scripts": {
+		"typecheck": "effect-tsgo tsrs"
+	},
+	"dependencies": {
+		"effect": "catalog:",
+		"yaml": "catalog:"
+	},
+	"devDependencies": {
+		"typescript": "catalog:"
+	}
+}

@@ -44,6 +44,7 @@ catalog:
   typescript: 7.1.0-beta
   vite: 8.3.5
   vitest: 5.1.0
+  yaml: 2.9.1
 permissions:
   fallow:
     skills: true
